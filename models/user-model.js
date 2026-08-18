@@ -38,6 +38,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: [8, "Password must be at least 8 characters long"],
+      // hidden by default, so the password never leaves the database by mistake
+      select: false,
     },
 
     role: {
@@ -62,6 +64,7 @@ const userSchema = new mongoose.Schema(
     imageUrl: {
       type: String,
       trim: true,
+      default: "default-user.webp",
     },
   },
   {

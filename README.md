@@ -21,6 +21,13 @@ PORT=5000
 MONGODB_URI=mongodb+srv://your_username:your_password@cluster.mongodb.net/
 DB_NAME=table-flow
 JWT_SECRET=your_secret_key
+JWT_EXPIRES_IN=7d
+```
+
+To generate a strong `JWT_SECRET`:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
 3. Fill the database with starting data (users, menu items, tables):
@@ -44,6 +51,184 @@ Accounts created by the seed (all with the password `password123`):
 | sara@example.com | chef |
 | omar@example.com | waiter |
 | nour@example.com | customer |
+
+---
+
+## Authentication Module (Session 16 task)
+
+### What the module does
+
+It is the part of TableFlow that answers the two questions from the session:
+
+- **Authentication — "who are you?"** A user signs up or logs in, the server checks the
+  credentials, and returns a **JWT**. Because HTTP is stateless the server does not remember
+  the user, so the client sends that token back with every following request.
+- **Authorization — "what are you allowed to do?"** The token also carries the user role, and
+  the `restrictTo` middleware decides which roles may reach which endpoint.
+
+How it is built:
+
+| Piece | File | What it does |
+| ----- | ---- | ------------ |
+| User model | `models/user-model.js` | fields, validation, and the `pre("save")` hook that hashes the password with **bcryptjs** |
+| Token helper | `utils/get-jwt.js` | signs `{ id, role }` with `JWT_SECRET` using **jsonwebtoken** |
+| Controllers | `controllers/auth-controllers.js` | signup, login, profile, change password |
+| Route protection | `middlewares/auth-middleware.js` | `protect` verifies the token, `restrictTo` checks the role |
+| Routes | `routes/auth-routes.js` | mounts everything under `/api/v1/auth` |
+
+Two details worth pointing out:
+
+- The password field is `select: false`, so it is **never** returned by a normal query. Login
+  has to ask for it on purpose with `.select("+password")`.
+- Passwords are stored hashed, never in plain text. `12345678` becomes `$2b$10$P5Q...`, and
+  `bcrypt.compare()` is what checks a login.
+
+### Chosen user roles
+
+TableFlow is a restaurant system, so the roles follow the real staff of a restaurant:
+
+| Role | What it is allowed to do |
+| ---- | ------------------------ |
+| `admin` | full control: users, menu, orders, reservations, tables, dashboard |
+| `manager` | same day-to-day management as admin, without user management |
+| `chef` | the Kitchen Display: sees pending/preparing orders and moves them forward |
+| `waiter` | the Waiter Dashboard: only the tables assigned to them, and serving their orders |
+| `customer` | browse the menu, place orders, book a reservation, manage their own profile |
+
+`signup` always creates a `customer`. Staff accounts are created by an admin, so nobody can
+make themselves an admin by registering.
+
+### Routes
+
+| Method | Endpoint | Access |
+| ------ | -------- | ------ |
+| POST | `/api/v1/auth/signup` | public |
+| POST | `/api/v1/auth/login` | public |
+| GET | `/api/v1/auth/me` | any logged in user |
+| PATCH | `/api/v1/auth/me` | any logged in user |
+| PATCH | `/api/v1/auth/change-password` | any logged in user |
+
+#### Example 1 — Sign up
+
+`POST /api/v1/auth/signup`
+
+```json
+{
+  "firstName": "Mostafa",
+  "lastName": "Yasser",
+  "email": "mostafa.new@example.com",
+  "phone": "01012345678",
+  "password": "password123",
+  "confirmPassword": "password123"
+}
+```
+
+Response `201 Created`:
+
+```json
+{
+  "status": "success",
+  "message": "Account created successfully",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "_id": "6721f0a3c8b1d2e4f5a60123",
+      "firstName": "Mostafa",
+      "lastName": "Yasser",
+      "email": "mostafa.new@example.com",
+      "role": "customer",
+      "status": "active",
+      "imageUrl": "default-user.webp"
+    }
+  }
+}
+```
+
+To upload a profile picture at the same time, send the request as `form-data` instead of JSON
+and add a file field named `imageUrl`.
+
+#### Example 2 — Log in
+
+`POST /api/v1/auth/login`
+
+```json
+{
+  "email": "mostafa@example.com",
+  "password": "password123"
+}
+```
+
+Response `200 OK`:
+
+```json
+{
+  "status": "success",
+  "message": "Logged in successfully",
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": { "_id": "...", "email": "mostafa@example.com", "role": "admin" }
+  }
+}
+```
+
+With wrong credentials, `401 Unauthorized`:
+
+```json
+{
+  "status": "fail",
+  "message": "Incorrect email or password"
+}
+```
+
+The same message is used for a wrong email and a wrong password on purpose, so the response
+does not tell an attacker which email addresses exist.
+
+#### Example 3 — Use the token on a protected route
+
+`GET /api/v1/auth/me`
+
+```text
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+Response `200 OK`:
+
+```json
+{
+  "status": "success",
+  "data": {
+    "user": {
+      "_id": "6721f0a3c8b1d2e4f5a60123",
+      "firstName": "Mostafa",
+      "email": "mostafa@example.com",
+      "role": "admin"
+    }
+  }
+}
+```
+
+Without the header, `401 Unauthorized`:
+
+```json
+{
+  "status": "fail",
+  "message": "You are not logged in, please login first"
+}
+```
+
+#### Example 4 — Authorization, not just authentication
+
+A logged-in `customer` sending `POST /api/v1/menu-items` is authenticated but not allowed:
+
+```json
+{
+  "status": "fail",
+  "message": "You do not have permission to perform this action"
+}
+```
+
+Status `403 Forbidden` — the token is valid, the role is wrong. That is the difference between
+authentication (401) and authorization (403).
 
 ---
 
@@ -88,6 +273,7 @@ backend project/
 │   └── multer-middleware.js
 │
 ├── utils/
+│   ├── get-jwt.js
 │   └── delete-uploaded-file.js
 │
 ├── data/
@@ -107,7 +293,7 @@ backend project/
 
 ## Sending the token
 
-Every protected route needs the token returned by login or register:
+Every protected route needs the token returned by signup or login:
 
 ```text
 Authorization: Bearer <token>
@@ -121,13 +307,13 @@ Authorization: Bearer <token>
 
 | Method | Endpoint | Access | Screen |
 | ------ | -------- | ------ | ------ |
-| POST | `/register` | public | 02 Register Page |
+| POST | `/signup` | public | 02 Register Page |
 | POST | `/login` | public | 01 Login Page |
 | GET | `/me` | logged in | 08 User Profile |
 | PATCH | `/me` | logged in | 08 Edit Profile |
 | PATCH | `/change-password` | logged in | 08 Settings tab |
 
-`register` and `PATCH /me` accept `form-data` with an `imageUrl` file field.
+`signup` and `PATCH /me` accept `form-data` with an `imageUrl` file field.
 
 ### Menu Items — `/api/v1/menu-items`
 

@@ -1,16 +1,14 @@
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 const User = require("../models/user-model");
+const generateToken = require("../utils/get-jwt");
 const deleteUploadedFile = require("../utils/delete-uploaded-file");
 
-// creates the token that the client sends back with every request
-const createToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-};
+// the picture used when a user does not upload one (see the User model)
+const DEFAULT_USER_IMAGE = "default-user.webp";
 
-// POST /api/v1/auth/register  (Register Page)
-const register = async (req, res) => {
+// POST /api/v1/auth/signup  (Register Page)
+const signup = async (req, res) => {
   try {
     const { firstName, lastName, email, phone, password, confirmPassword } =
       req.body;
@@ -48,7 +46,7 @@ const register = async (req, res) => {
       status: "success",
       message: "Account created successfully",
       data: {
-        token: createToken(newUser._id),
+        token: generateToken(newUser),
         user: newUser,
       },
     });
@@ -76,7 +74,10 @@ const login = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    // the password is select: false in the model, so it has to be asked for
+    const user = await User.findOne({ email: email.toLowerCase() }).select(
+      "+password",
+    );
 
     if (!user) {
       return res.status(401).json({
@@ -107,7 +108,7 @@ const login = async (req, res) => {
       status: "success",
       message: "Logged in successfully",
       data: {
-        token: createToken(user._id),
+        token: generateToken(user),
         user,
       },
     });
@@ -150,7 +151,11 @@ const updateMe = async (req, res) => {
 
     if (req.file) {
       req.body.imageUrl = req.file.filename;
-      if (user.imageUrl) deleteUploadedFile("users", user.imageUrl);
+
+      // the default image is shared by every user, so it must never be deleted
+      if (user.imageUrl && user.imageUrl !== DEFAULT_USER_IMAGE) {
+        deleteUploadedFile("users", user.imageUrl);
+      }
     }
 
     Object.assign(user, req.body);
@@ -190,7 +195,7 @@ const changePassword = async (req, res) => {
       });
     }
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id).select("+password");
 
     const isCorrectPassword = await bcrypt.compare(
       currentPassword,
@@ -222,7 +227,7 @@ const changePassword = async (req, res) => {
 };
 
 module.exports = {
-  register,
+  signup,
   login,
   getMe,
   updateMe,

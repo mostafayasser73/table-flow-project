@@ -1,6 +1,9 @@
 const User = require("../models/user-model");
 const deleteUploadedFile = require("../utils/delete-uploaded-file");
 
+// the picture used when a user does not upload one (see the User model)
+const DEFAULT_USER_IMAGE = "default-user.webp";
+
 // GET /api/v1/users  (Users Management page)
 // supports: ?role=admin  ?status=active  ?search=mostafa  ?page=1&limit=10
 const getAllUsers = async (req, res) => {
@@ -129,7 +132,11 @@ const updateUser = async (req, res) => {
 
     if (req.file) {
       req.body.imageUrl = req.file.filename;
-      if (user.imageUrl) deleteUploadedFile("users", user.imageUrl);
+
+      // the default image is shared by every user, so it must never be deleted
+      if (user.imageUrl && user.imageUrl !== DEFAULT_USER_IMAGE) {
+        deleteUploadedFile("users", user.imageUrl);
+      }
     }
 
     Object.assign(user, req.body);
@@ -177,7 +184,7 @@ const deleteUser = async (req, res) => {
       });
     }
 
-    if (deletedUser.imageUrl) {
+    if (deletedUser.imageUrl && deletedUser.imageUrl !== DEFAULT_USER_IMAGE) {
       deleteUploadedFile("users", deletedUser.imageUrl);
     }
 

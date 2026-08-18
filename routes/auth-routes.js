@@ -6,7 +6,7 @@ const multerUpload = require("../middlewares/multer-middleware");
 
 const router = express.Router();
 
-router.post("/register", multerUpload.single("imageUrl"), authControllers.register);
+router.post("/signup", multerUpload.single("imageUrl"), authControllers.signup);
 
 router.post("/login", authControllers.login);
 
