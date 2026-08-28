@@ -1,12 +1,23 @@
-# TableFlow — Backend (Node.js + Express + MongoDB + Mongoose)
+# TableFlow — Restaurant Management System (MEAN)
 
-Backend REST API for the TableFlow restaurant system.
+The whole project lives in this repository:
 
-Base URL: `http://localhost:5000/api/v1`
+| Part | Folder | Built with |
+| ---- | ------ | ---------- |
+| Backend REST API | the root | Node.js, Express, MongoDB, Mongoose |
+| Frontend | [`frontend/`](frontend) | Angular, TypeScript |
+
+The frontend talks to the backend over HTTP and never touches MongoDB itself.
+Each part has its own `package.json`, so they are installed and started
+separately — see [`frontend/README.md`](frontend/README.md) for the Angular side.
+
+API base URL: `http://localhost:5001/api/v1`
 
 ---
 
 ## How to run
+
+### The backend
 
 1. Install the packages:
 
@@ -17,7 +28,7 @@ npm install
 2. Create a `.env` file in the project root:
 
 ```env
-PORT=5000
+PORT=5001
 MONGODB_URI=mongodb+srv://your_username:your_password@cluster.mongodb.net/
 DB_NAME=table-flow
 JWT_SECRET=your_secret_key
@@ -30,27 +41,32 @@ To generate a strong `JWT_SECRET`:
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 ```
 
-3. Fill the database with starting data (users, menu items, tables):
-
-```bash
-npm run seed
-```
-
-4. Start the server:
+3. Start the server:
 
 ```bash
 npm start
 ```
 
-Accounts created by the seed (all with the password `password123`):
+The database already holds the restaurant's staff accounts, menu and tables, so
+the API answers with real data straight away. Staff accounts are created by an
+admin from the Users Management page; `POST /auth/signup` always creates a
+customer.
 
-| Email | Role |
-| ----- | ---- |
-| mostafa@example.com | admin |
-| ahmed@example.com | manager |
-| sara@example.com | chef |
-| omar@example.com | waiter |
-| nour@example.com | customer |
+The dish and profile pictures live under `uploads/`, and are served at
+`/api/v1/uploads/...`.
+
+### The frontend
+
+In a second terminal, from the `frontend` folder:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Then open `http://localhost:4200`. The backend has to be running first, because
+every screen reads its data from it.
 
 ---
 
@@ -276,18 +292,24 @@ backend project/
 │   ├── get-jwt.js
 │   └── delete-uploaded-file.js
 │
-├── data/
-│   └── seed.js
-│
-├── uploads/          (created automatically by Multer)
+├── uploads/          (Multer writes new uploads here)
 │   ├── users/
 │   └── menu-items/
+│
+├── frontend/         (the Angular app — see frontend/README.md)
+│   ├── src/
+│   ├── public/
+│   ├── angular.json
+│   └── package.json
 │
 ├── .env
 ├── .gitignore
 ├── index.js
 └── package.json
 ```
+
+`frontend/` keeps its own `package.json` and `.gitignore`, so its
+`node_modules` and `dist` are never committed.
 
 ---
 
@@ -401,8 +423,8 @@ Query parameters on `GET /`:
 ### Uploaded images
 
 ```text
-http://localhost:5000/api/v1/uploads/users/user-1753456789012.png
-http://localhost:5000/api/v1/uploads/menu-items/item-1753456789012.png
+http://localhost:5001/api/v1/uploads/users/user-1753456789012.png
+http://localhost:5001/api/v1/uploads/menu-items/item-1753456789012.png
 ```
 
 ---

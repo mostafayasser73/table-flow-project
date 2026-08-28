@@ -5,7 +5,7 @@ const User = require("../models/user-model");
 
 // the values used in the Order Summary card on the Cart & Checkout page
 const TAX_RATE = 0.14;
-const DELIVERY_FEE = 3;
+const DELIVERY_FEE = 25;
 
 // GET /api/v1/orders  (Orders Dashboard)
 // supports: ?status=pending  ?orderType=delivery  ?search=1042  ?page=1&limit=10

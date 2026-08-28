@@ -1,0 +1,36 @@
+.form-panel {
+  max-width: 40rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-panel h2 {
+  font-size: 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+}
+
+.field {
+  flex: 1;
+}
+
+.hint {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 36rem) {
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

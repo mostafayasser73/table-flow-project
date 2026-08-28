@@ -1,0 +1,41 @@
+<header class="navbar">
+  <a class="brand" routerLink="/">
+    <span class="brand-mark">TF</span>
+    Table Flow
+  </a>
+
+  <nav class="nav-links">
+    <a routerLink="/menu" routerLinkActive="active">Menu</a>
+    <a routerLink="/reservation" routerLinkActive="active">Book a table</a>
+
+    <!-- the management links depend on the role in the token -->
+    @for (link of staffLinks(); track link.path) {
+      <a [routerLink]="link.path" routerLinkActive="active">{{ link.label }}</a>
+    }
+
+    <a class="cart" routerLink="/cart" routerLinkActive="active">
+      Cart
+      @if (cartService.count()) {
+        <span class="count">{{ cartService.count() }}</span>
+      }
+    </a>
+
+    <!-- currentUser is a signal, so it is read by calling it -->
+    @if (authService.currentUser(); as user) {
+      <a class="who" routerLink="/profile">
+        <img class="avatar-sm" [src]="avatar()" alt="" />
+        {{ user.firstName }}
+        <span class="role">{{ user.role }}</span>
+      </a>
+
+      <button type="button" class="ghost" (click)="onLogout()">Log out</button>
+    } @else {
+      <a routerLink="/login" routerLinkActive="active">Log in</a>
+      <a class="cta" routerLink="/signup">Sign up</a>
+    }
+  </nav>
+</header>
+
+<main>
+  <router-outlet />
+</main>

@@ -1,11 +1,5 @@
 node_modules
 .env
 
-# uploaded files are not pushed, except the default user image
-uploads/*
-!uploads/users/
-uploads/users/*
-!uploads/users/default-user.webp
-
 .c/
 .DS_Store

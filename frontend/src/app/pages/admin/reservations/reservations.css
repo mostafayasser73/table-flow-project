@@ -1,0 +1,18 @@
+.muted {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.notes {
+  max-width: 16rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.table-select {
+  margin: 0;
+  min-width: 9rem;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.55rem;
+}

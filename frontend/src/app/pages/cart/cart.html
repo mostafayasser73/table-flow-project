@@ -1,0 +1,116 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>Your cart</h1>
+      <p>{{ cartService.count() }} items</p>
+    </div>
+  </header>
+
+  @if (cartService.lines().length === 0) {
+    <div class="panel state">
+      <p>Your cart is empty.</p>
+      <a class="link" routerLink="/menu">Browse the menu</a>
+    </div>
+  } @else {
+    <div class="checkout">
+      <section class="lines">
+        @for (line of cartService.lines(); track line.item._id) {
+          <article class="line panel">
+            <div class="thumb">
+              @if (line.item.imageUrl) {
+                <img [src]="dishImage(line)" [alt]="line.item.name" />
+              }
+            </div>
+
+            <div class="line-info">
+              <strong>{{ line.item.name }}</strong>
+              <small>{{ line.item.price }} EGP each</small>
+            </div>
+
+            <input
+              class="qty"
+              type="number"
+              min="1"
+              max="20"
+              [value]="line.quantity"
+              (change)="onQuantityChange(line.item._id, $any($event.target).value)"
+            />
+
+            <span class="line-total">
+              {{ line.item.price * line.quantity }} EGP
+            </span>
+
+            <button
+              type="button"
+              class="btn-inline btn-quiet"
+              (click)="cartService.remove(line.item._id)"
+            >
+              Remove
+            </button>
+          </article>
+        }
+      </section>
+
+      <aside class="summary panel">
+        <h2>Order summary</h2>
+
+        <label for="orderType">How would you like it?</label>
+        <select id="orderType" name="orderType" [(ngModel)]="orderType">
+          <option [value]="OrderType.Delivery">Delivery</option>
+          <option [value]="OrderType.DineIn">Dine in</option>
+          <option [value]="OrderType.Pickup">Pickup</option>
+        </select>
+
+        @if (orderType === OrderType.Delivery) {
+          <label for="address">Delivery address</label>
+          <input
+            id="address"
+            name="address"
+            type="text"
+            placeholder="Street, area, city"
+            [(ngModel)]="deliveryAddress"
+          />
+        }
+
+        @if (orderType === OrderType.DineIn) {
+          <label for="table">Table number</label>
+          <input
+            id="table"
+            name="table"
+            type="number"
+            min="1"
+            placeholder="e.g. 4"
+            [(ngModel)]="tableNumber"
+          />
+        }
+
+        <dl class="totals">
+          <div>
+            <dt>Subtotal</dt>
+            <dd>{{ cartService.subtotal() }} EGP</dd>
+          </div>
+          <div>
+            <dt>Delivery</dt>
+            <dd>{{ deliveryFee() }} EGP</dd>
+          </div>
+          <div>
+            <dt>Tax (14%)</dt>
+            <dd>{{ tax() }} EGP</dd>
+          </div>
+          <div class="grand">
+            <dt>Total</dt>
+            <dd>{{ total() }} EGP</dd>
+          </div>
+        </dl>
+
+        @if (errorMessage()) {
+          <p class="error">{{ errorMessage() }}</p>
+        }
+
+        <button type="button" [disabled]="isPlacing()" (click)="placeOrder()">
+          {{ isPlacing() ? 'Placing order...' : 'Place order' }}
+        </button>
+      </aside>
+    </div>
+  }
+</div>

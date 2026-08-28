@@ -1,0 +1,52 @@
+.form-panel {
+  max-width: 44rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-panel h2 {
+  font-size: 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+}
+
+.field {
+  flex: 1;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+  margin-bottom: 1rem;
+}
+
+.check input {
+  width: auto;
+  margin: 0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.thumb {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  background: var(--brand-soft);
+  flex-shrink: 0;
+}
+
+@media (max-width: 40rem) {
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

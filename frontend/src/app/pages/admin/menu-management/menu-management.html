@@ -1,0 +1,221 @@
+<div class="page page-wide">
+  <header class="page-header">
+    <div>
+      <h1>Menu</h1>
+      <p>{{ totalItems() }} dishes</p>
+    </div>
+
+    <button type="button" class="btn-inline" (click)="openAdd()">
+      + Add dish
+    </button>
+  </header>
+
+  <div class="toolbar">
+    <input
+      type="search"
+      name="search"
+      placeholder="Search dishes..."
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="onFilterChange()"
+    />
+
+    <select
+      name="category"
+      [(ngModel)]="categoryFilter"
+      (change)="onFilterChange()"
+    >
+      <option value="all">All categories</option>
+      @for (category of categories; track category) {
+        <option [value]="category">{{ category }}</option>
+      }
+    </select>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (isFormOpen()) {
+    <form class="form-panel panel" (ngSubmit)="saveDish()">
+      <h2>{{ editingId() ? 'Edit dish' : 'Add dish' }}</h2>
+
+      <label for="name">Name</label>
+      <input
+        id="name"
+        name="name"
+        type="text"
+        required
+        minlength="3"
+        [(ngModel)]="form.name"
+      />
+
+      <label for="description">Description</label>
+      <textarea
+        id="description"
+        name="description"
+        required
+        maxlength="1000"
+        [(ngModel)]="form.description"
+      ></textarea>
+
+      <div class="row">
+        <div class="field">
+          <label for="price">Price (EGP)</label>
+          <input
+            id="price"
+            name="price"
+            type="number"
+            min="0"
+            required
+            [(ngModel)]="form.price"
+          />
+        </div>
+
+        <div class="field">
+          <label for="category">Category</label>
+          <select id="category" name="category" [(ngModel)]="form.category">
+            @for (category of categories; track category) {
+              <option [value]="category">{{ category }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="prep">Preparation time</label>
+          <input
+            id="prep"
+            name="prep"
+            type="text"
+            required
+            placeholder="15-20 min"
+            [(ngModel)]="form.preparationTime"
+          />
+        </div>
+      </div>
+
+      <label for="photo">Picture</label>
+      <input
+        id="photo"
+        name="photo"
+        type="file"
+        accept="image/*"
+        (change)="onPhotoPicked($event)"
+      />
+
+      <label class="check">
+        <input type="checkbox" name="available" [(ngModel)]="form.available" />
+        Available on the menu
+      </label>
+
+      @if (formError()) {
+        <p class="error">{{ formError() }}</p>
+      }
+
+      <div class="form-actions">
+        <button type="submit" class="btn-inline">Save</button>
+        <button
+          type="button"
+          class="btn-inline btn-quiet"
+          (click)="closeForm()"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (isLoading()) {
+    <p class="state">Loading the menu...</p>
+  } @else if (items().length === 0) {
+    <p class="state">No dishes matched.</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dish</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Rating</th>
+            <th>Available</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (item of items(); track item._id) {
+            <tr>
+              <td>
+                <div class="person">
+                  @if (item.imageUrl) {
+                    <img class="thumb" [src]="dishImage(item)" alt="" />
+                  }
+                  <div>
+                    <strong>{{ item.name }}</strong>
+                    <small>{{ item.preparationTime }}</small>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge">{{ item.category }}</span></td>
+              <td>{{ item.price }} EGP</td>
+              <td>
+                @if (item.numReviews) {
+                  {{ item.rating }} ({{ item.numReviews }})
+                } @else {
+                  —
+                }
+              </td>
+              <td>
+                <button
+                  type="button"
+                  class="btn-inline"
+                  [class.btn-quiet]="!item.available"
+                  (click)="toggleAvailable(item)"
+                >
+                  {{ item.available ? 'Yes' : 'No' }}
+                </button>
+              </td>
+              <td class="cell-actions">
+                <button
+                  type="button"
+                  class="btn-inline btn-quiet"
+                  (click)="openEdit(item)"
+                >
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  class="btn-inline btn-danger"
+                  (click)="deleteDish(item)"
+                >
+                  Delete
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pagination">
+        <button
+          type="button"
+          class="btn-inline btn-quiet"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          Previous
+        </button>
+        <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <button
+          type="button"
+          class="btn-inline btn-quiet"
+          [disabled]="currentPage() === totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+</div>

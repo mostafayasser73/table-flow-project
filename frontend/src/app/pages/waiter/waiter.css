@@ -1,0 +1,57 @@
+.block {
+  margin-bottom: 2.5rem;
+}
+
+.block h2 {
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.tables {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: 1rem;
+}
+
+.table-card {
+  border-left: 4px solid var(--border);
+}
+
+.table-card.status-occupied {
+  border-left-color: var(--info);
+}
+
+.table-card.status-reserved {
+  border-left-color: var(--warning);
+}
+
+.table-card.status-available {
+  border-left-color: var(--success);
+}
+
+.table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.muted {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-top: 0.25rem;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.84rem;
+  color: var(--muted);
+}

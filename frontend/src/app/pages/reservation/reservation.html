@@ -1,0 +1,83 @@
+<div class="page">
+  <div class="reserve-card panel">
+    <h1>Book a table</h1>
+    <p class="subtitle">
+      Send us the details and the floor manager will confirm your table.
+    </p>
+
+    <form #reservationForm="ngForm" (ngSubmit)="onSubmit()">
+      <label for="fullName">Full name</label>
+      <input
+        id="fullName"
+        name="fullName"
+        type="text"
+        required
+        minlength="3"
+        [(ngModel)]="form.fullName"
+      />
+
+      <label for="phone">Phone</label>
+      <input
+        id="phone"
+        name="phone"
+        type="tel"
+        required
+        placeholder="01012345678"
+        [(ngModel)]="form.phone"
+      />
+
+      <div class="row">
+        <div class="field">
+          <label for="date">Date</label>
+          <input
+            id="date"
+            name="date"
+            type="date"
+            required
+            [min]="today"
+            [(ngModel)]="form.date"
+          />
+        </div>
+
+        <div class="field">
+          <label for="time">Time</label>
+          <select id="time" name="time" required [(ngModel)]="form.time">
+            @for (time of times; track time) {
+              <option [value]="time">{{ time }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="guests">Guests</label>
+          <input
+            id="guests"
+            name="guests"
+            type="number"
+            min="1"
+            max="20"
+            required
+            [(ngModel)]="form.guests"
+          />
+        </div>
+      </div>
+
+      <label for="requests">Anything we should know?</label>
+      <textarea
+        id="requests"
+        name="requests"
+        maxlength="500"
+        placeholder="Allergies, a birthday, a table by the window..."
+        [(ngModel)]="form.specialRequests"
+      ></textarea>
+
+      @if (errorMessage()) {
+        <p class="error">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="reservationForm.invalid || isSaving()">
+        {{ isSaving() ? 'Sending...' : 'Confirm reservation' }}
+      </button>
+    </form>
+  </div>
+</div>

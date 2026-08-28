@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
-    "seed": "node data/seed.js"
+    "start": "nodemon index.js"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

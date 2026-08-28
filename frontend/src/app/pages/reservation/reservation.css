@@ -1,0 +1,32 @@
+.reserve-card {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+h1 {
+  font-size: 1.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  margin: 0 0 1.5rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+}
+
+.field {
+  flex: 1;
+}
+
+@media (max-width: 34rem) {
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

@@ -1,0 +1,157 @@
+<div class="page page-wide">
+  <header class="page-header">
+    <div>
+      <h1>Orders</h1>
+      <p>{{ totalOrders() }} orders</p>
+    </div>
+  </header>
+
+  @if (stats(); as data) {
+    <section class="cards">
+      <article class="stat panel">
+        <span class="stat-label">Pending</span>
+        <strong class="stat-value">{{ data.pending }}</strong>
+      </article>
+      <article class="stat panel">
+        <span class="stat-label">Preparing</span>
+        <strong class="stat-value">{{ data.preparing }}</strong>
+      </article>
+      <article class="stat panel">
+        <span class="stat-label">Ready</span>
+        <strong class="stat-value">{{ data.ready }}</strong>
+      </article>
+      <article class="stat panel">
+        <span class="stat-label">Today</span>
+        <strong class="stat-value">{{ data.todayTotal }} EGP</strong>
+      </article>
+    </section>
+  }
+
+  <div class="toolbar">
+    <input
+      type="search"
+      name="search"
+      placeholder="Search by order number or customer..."
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="onFilterChange()"
+    />
+
+    <select
+      name="status"
+      [(ngModel)]="statusFilter"
+      (change)="onFilterChange()"
+    >
+      <option value="all">All statuses</option>
+      @for (status of statuses; track status) {
+        <option [value]="status">{{ status }}</option>
+      }
+    </select>
+
+    <select name="type" [(ngModel)]="typeFilter" (change)="onFilterChange()">
+      <option value="all">All types</option>
+      @for (type of types; track type) {
+        <option [value]="type">{{ type }}</option>
+      }
+    </select>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="state">Loading orders...</p>
+  } @else if (orders().length === 0) {
+    <p class="state">No orders matched.</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Where</th>
+            <th>Total</th>
+            <th>Placed</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track order._id) {
+            <tr>
+              <td>#{{ order.orderNumber }}</td>
+              <td>{{ customerName(order) }}</td>
+              <td class="items">
+                @for (line of order.items; track line.menuItem) {
+                  <span>{{ line.quantity }} x {{ line.name }}</span>
+                }
+              </td>
+              <td class="where">
+                <span class="badge">{{ order.orderType }}</span>
+                @if (order.tableNumber) {
+                  <small>Table {{ order.tableNumber }}</small>
+                }
+                @if (order.deliveryAddress) {
+                  <small>{{ order.deliveryAddress }}</small>
+                }
+              </td>
+              <td>{{ order.total }} EGP</td>
+              <td>{{ order.createdAt | date: 'd MMM, h:mm a' }}</td>
+              <td>
+                <span class="badge badge-{{ order.status }}">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td class="cell-actions">
+                @for (step of nextSteps(order); track step) {
+                  <button
+                    type="button"
+                    class="btn-inline"
+                    [class.btn-quiet]="step === OrderStatus.Cancelled"
+                    (click)="setStatus(order, step)"
+                  >
+                    {{ step }}
+                  </button>
+                }
+
+                @if (canDelete) {
+                  <button
+                    type="button"
+                    class="btn-inline btn-danger"
+                    (click)="deleteOrder(order)"
+                  >
+                    Delete
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pagination">
+        <button
+          type="button"
+          class="btn-inline btn-quiet"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          Previous
+        </button>
+        <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <button
+          type="button"
+          class="btn-inline btn-quiet"
+          [disabled]="currentPage() === totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+</div>

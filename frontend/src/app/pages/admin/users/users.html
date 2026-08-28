@@ -1,0 +1,232 @@
+<div class="page page-wide">
+  <header class="page-header">
+    <div>
+      <h1>Users</h1>
+      <p>{{ totalUsers() }} accounts</p>
+    </div>
+
+    <button type="button" class="btn-inline" (click)="openAdd()">
+      + Add user
+    </button>
+  </header>
+
+  <div class="toolbar">
+    <input
+      type="search"
+      name="search"
+      placeholder="Search by name or email..."
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="onFilterChange()"
+    />
+
+    <select name="role" [(ngModel)]="roleFilter" (change)="onFilterChange()">
+      <option value="all">All roles</option>
+      @for (role of roles; track role) {
+        <option [value]="role">{{ role }}</option>
+      }
+    </select>
+
+    <select
+      name="status"
+      [(ngModel)]="statusFilter"
+      (change)="onFilterChange()"
+    >
+      <option value="all">All statuses</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (isFormOpen()) {
+    <form class="form-panel panel" (ngSubmit)="saveUser()">
+      <h2>{{ editingId() ? 'Edit user' : 'Add user' }}</h2>
+
+      <div class="row">
+        <div class="field">
+          <label for="firstName">First name</label>
+          <input
+            id="firstName"
+            name="firstName"
+            type="text"
+            required
+            [(ngModel)]="form.firstName"
+          />
+        </div>
+
+        <div class="field">
+          <label for="lastName">Last name</label>
+          <input
+            id="lastName"
+            name="lastName"
+            type="text"
+            required
+            [(ngModel)]="form.lastName"
+          />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            [(ngModel)]="form.email"
+          />
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input id="phone" name="phone" type="tel" [(ngModel)]="form.phone" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <label for="role">Role</label>
+          <select id="role" name="role" [(ngModel)]="form.role">
+            @for (role of roles; track role) {
+              <option [value]="role">{{ role }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="status">Status</label>
+          <select id="status" name="status" [(ngModel)]="form.status">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <label for="password">
+        Password
+        @if (editingId()) {
+          <span class="hint">— leave empty to keep the current one</span>
+        }
+      </label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        minlength="8"
+        [required]="!editingId()"
+        [(ngModel)]="form.password"
+      />
+
+      <label for="photo">Profile picture</label>
+      <input
+        id="photo"
+        name="photo"
+        type="file"
+        accept="image/*"
+        (change)="onPhotoPicked($event)"
+      />
+
+      @if (formError()) {
+        <p class="error">{{ formError() }}</p>
+      }
+
+      <div class="form-actions">
+        <button type="submit" class="btn-inline">Save</button>
+        <button
+          type="button"
+          class="btn-inline btn-quiet"
+          (click)="closeForm()"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (isLoading()) {
+    <p class="state">Loading users...</p>
+  } @else if (users().length === 0) {
+    <p class="state">No users matched.</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user._id) {
+            <tr>
+              <td>
+                <div class="person">
+                  <img class="avatar" [src]="avatar(user)" alt="" />
+                  <div>
+                    <strong>{{ user.firstName }} {{ user.lastName }}</strong>
+                    <small>{{ user.email }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>{{ user.phone || '—' }}</td>
+              <td><span class="badge">{{ user.role }}</span></td>
+              <td>
+                <span class="badge badge-{{ user.status }}">
+                  {{ user.status }}
+                </span>
+              </td>
+              <td class="cell-actions">
+                <button
+                  type="button"
+                  class="btn-inline btn-quiet"
+                  (click)="openEdit(user)"
+                >
+                  Edit
+                </button>
+
+                @if (canDelete(user)) {
+                  <button
+                    type="button"
+                    class="btn-inline btn-danger"
+                    (click)="deleteUser(user)"
+                  >
+                    Delete
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalPages() > 1) {
+      <nav class="pagination">
+        <button
+          type="button"
+          class="btn-inline btn-quiet"
+          [disabled]="currentPage() === 1"
+          (click)="goToPage(currentPage() - 1)"
+        >
+          Previous
+        </button>
+        <span>Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <button
+          type="button"
+          class="btn-inline btn-quiet"
+          [disabled]="currentPage() === totalPages()"
+          (click)="goToPage(currentPage() + 1)"
+        >
+          Next
+        </button>
+      </nav>
+    }
+  }
+</div>

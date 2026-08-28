@@ -1,0 +1,91 @@
+<div class="page page-wide">
+  <header class="page-header">
+    <div>
+      <h1>Kitchen</h1>
+      <p>{{ pending().length }} waiting, {{ preparing().length }} on the pass</p>
+    </div>
+
+    <button type="button" class="btn-inline btn-quiet" (click)="load()">
+      Refresh
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="state">Loading...</p>
+  } @else {
+    <div class="board">
+      <section class="column">
+        <h2>New orders</h2>
+
+        @if (pending().length === 0) {
+          <p class="state">Nothing waiting.</p>
+        }
+
+        @for (order of pending(); track order._id) {
+          <article class="ticket panel">
+            <div class="ticket-head">
+              <strong>#{{ order.orderNumber }}</strong>
+              <span class="badge">{{ where(order) }}</span>
+            </div>
+
+            <small class="muted">
+              {{ customerName(order) }} · {{ order.createdAt | date: 'h:mm a' }}
+            </small>
+
+            <ul>
+              @for (line of order.items; track line.menuItem) {
+                <li>
+                  <span class="qty">{{ line.quantity }}x</span> {{ line.name }}
+                </li>
+              }
+            </ul>
+
+            <button
+              type="button"
+              (click)="setStatus(order, OrderStatus.Preparing)"
+            >
+              Start preparing
+            </button>
+          </article>
+        }
+      </section>
+
+      <section class="column">
+        <h2>Being prepared</h2>
+
+        @if (preparing().length === 0) {
+          <p class="state">Nothing on the pass.</p>
+        }
+
+        @for (order of preparing(); track order._id) {
+          <article class="ticket panel working">
+            <div class="ticket-head">
+              <strong>#{{ order.orderNumber }}</strong>
+              <span class="badge">{{ where(order) }}</span>
+            </div>
+
+            <small class="muted">
+              {{ customerName(order) }} · {{ order.createdAt | date: 'h:mm a' }}
+            </small>
+
+            <ul>
+              @for (line of order.items; track line.menuItem) {
+                <li>
+                  <span class="qty">{{ line.quantity }}x</span> {{ line.name }}
+                </li>
+              }
+            </ul>
+
+            <button type="button" (click)="setStatus(order, OrderStatus.Ready)">
+              Mark ready
+            </button>
+          </article>
+        }
+      </section>
+    </div>
+  }
+</div>

@@ -1,0 +1,365 @@
+/* Colours and shared styles used by every page. */
+:root {
+  --brand: #e2574c;
+  --brand-dark: #c74036;
+  --brand-soft: #fdeceb;
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --border: #e5e5e8;
+  --text: #1c1c1e;
+  --muted: #71717a;
+  --danger: #c53030;
+  --danger-soft: #fdecea;
+  --success: #2f7a4d;
+  --success-soft: #e7f5ec;
+  --warning: #9a6700;
+  --warning-soft: #fff5d6;
+  --info: #2b5fa8;
+  --info-soft: #e8f0fb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+/* ---------- forms ---------- */
+
+label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 5rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--brand);
+}
+
+button {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.7rem 1rem;
+  border: none;
+  border-radius: 0.55rem;
+  background: var(--brand);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--brand-dark);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* a button that sits inside a row rather than filling a form */
+.btn-inline {
+  width: auto;
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.btn-quiet {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.btn-quiet:hover:not(:disabled) {
+  background: var(--surface);
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.btn-danger {
+  background: var(--danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #a52626;
+}
+
+/* ---------- page shell ---------- */
+
+.page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 4rem;
+}
+
+.page-wide {
+  max-width: 84rem;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+}
+
+.page-header h1 {
+  font-size: 1.75rem;
+}
+
+.page-header p {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1.25rem;
+}
+
+.state {
+  text-align: center;
+  color: var(--muted);
+  padding: 2.5rem 1rem;
+}
+
+.error {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.55rem;
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-size: 0.88rem;
+}
+
+.notice {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.55rem;
+  background: var(--success-soft);
+  color: var(--success);
+  font-size: 0.88rem;
+}
+
+/* ---------- filter bars ---------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.toolbar input,
+.toolbar select {
+  margin: 0;
+  width: auto;
+  min-width: 10rem;
+}
+
+.toolbar input[type="search"] {
+  flex: 1;
+  min-width: 14rem;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pill {
+  width: auto;
+  margin: 0;
+  padding: 0.4rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.88rem;
+  text-transform: capitalize;
+}
+
+.pill:hover {
+  background: var(--surface);
+  border-color: var(--brand);
+}
+
+.pill.active {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+/* ---------- tables ---------- */
+
+.table-wrap {
+  overflow-x: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th {
+  text-align: left;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cell-actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+/* ---------- badges ---------- */
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  white-space: nowrap;
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.badge-pending,
+.badge-reserved {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.badge-preparing,
+.badge-occupied {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.badge-ready,
+.badge-confirmed,
+.badge-served,
+.badge-delivered,
+.badge-available,
+.badge-active {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.badge-cancelled,
+.badge-inactive {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ---------- avatars ---------- */
+
+.avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--brand-soft);
+  flex-shrink: 0;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.person small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+/* ---------- pagination ---------- */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}

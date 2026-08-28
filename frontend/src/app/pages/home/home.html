@@ -1,0 +1,70 @@
+<section class="hero">
+  <div class="hero-text">
+    <h1>Food worth sitting down for</h1>
+    <p>
+      Order for delivery, pick it up on your way home, or book a table and let
+      us take care of the rest.
+    </p>
+
+    <div class="hero-actions">
+      <a class="hero-btn" routerLink="/menu">Browse the menu</a>
+      <a class="hero-btn ghost" routerLink="/reservation">Book a table</a>
+    </div>
+  </div>
+</section>
+
+<div class="page">
+  <section class="block">
+    <div class="block-head">
+      <h2>Browse by category</h2>
+    </div>
+
+    <div class="categories">
+      @for (category of categories(); track category) {
+        <button type="button" class="category" (click)="openCategory(category)">
+          {{ category }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h2>Popular right now</h2>
+      <a class="see-all" routerLink="/menu">See all</a>
+    </div>
+
+    @if (popular().length === 0) {
+      <p class="state">Nothing to show yet.</p>
+    }
+
+    <div class="grid">
+      @for (item of popular(); track item._id) {
+        <a class="card" [routerLink]="['/menu', item._id]">
+          <div class="thumb">
+            @if (item.imageUrl) {
+              <img [src]="dishImage(item)" [alt]="item.name" />
+            }
+          </div>
+
+          <div class="card-body">
+            <div class="card-top">
+              <h3>{{ item.name }}</h3>
+              <span class="price">{{ item.price }} EGP</span>
+            </div>
+
+            <p class="description">{{ item.description }}</p>
+
+            <div class="card-meta">
+              <span class="badge">{{ item.category }}</span>
+              <span>{{ item.preparationTime }}</span>
+              @if (item.numReviews) {
+                <span>{{ item.rating }} ({{ item.numReviews }})</span>
+              }
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  </section>
+</div>

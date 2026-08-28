@@ -1,0 +1,45 @@
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.84rem;
+  color: var(--muted);
+  min-width: 10rem;
+}
+
+.where {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+  max-width: 14rem;
+}
+
+.where small {
+  color: var(--muted);
+  font-size: 0.78rem;
+}

@@ -1,0 +1,59 @@
+.profile-head {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.photo {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--brand-soft);
+}
+
+.profile-head h1 {
+  font-size: 1.5rem;
+}
+
+.profile-head p {
+  margin: 0.15rem 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.form-card {
+  max-width: 32rem;
+  padding: 1.75rem;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+}
+
+.field {
+  flex: 1;
+}
+
+@media (max-width: 34rem) {
+  .row {
+    flex-direction: column;
+    gap: 0;
+  }
+}

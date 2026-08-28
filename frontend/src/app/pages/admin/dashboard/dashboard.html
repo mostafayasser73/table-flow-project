@@ -1,0 +1,74 @@
+<div class="page page-wide">
+  <header class="page-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p>How the restaurant is doing right now</p>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (stats(); as data) {
+    <section class="cards">
+      <article class="stat panel">
+        <span class="stat-label">Total orders</span>
+        <strong class="stat-value">{{ data.totalOrders }}</strong>
+      </article>
+
+      <article class="stat panel">
+        <span class="stat-label">Revenue</span>
+        <strong class="stat-value">{{ data.revenue }} EGP</strong>
+      </article>
+
+      <article class="stat panel">
+        <span class="stat-label">Active users</span>
+        <strong class="stat-value">{{ data.activeUsers }}</strong>
+      </article>
+
+      <article class="stat panel">
+        <span class="stat-label">Reservations</span>
+        <strong class="stat-value">{{ data.totalReservations }}</strong>
+      </article>
+    </section>
+
+    <section class="recent">
+      <div class="recent-head">
+        <h2>Recent orders</h2>
+        <a class="link" routerLink="/admin/orders">See all orders</a>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Type</th>
+              <th>Total</th>
+              <th>Placed</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (order of data.recentOrders; track order._id) {
+              <tr>
+                <td>#{{ order.orderNumber }}</td>
+                <td>{{ customerName(order) }}</td>
+                <td>{{ order.orderType }}</td>
+                <td>{{ order.total }} EGP</td>
+                <td>{{ order.createdAt | date: 'd MMM, h:mm a' }}</td>
+                <td>
+                  <span class="badge badge-{{ order.status }}">
+                    {{ order.status }}
+                  </span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+  }
+</div>

@@ -1,0 +1,125 @@
+<div class="page page-wide">
+  <header class="page-header">
+    <div>
+      <h1>My section</h1>
+      <p>
+        {{ tables().length }} tables · {{ orders().length }} active orders ·
+        {{ readyToServe() }} ready to serve
+      </p>
+    </div>
+
+    <button type="button" class="btn-inline btn-quiet" (click)="load()">
+      Refresh
+    </button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="state">Loading...</p>
+  } @else {
+    <section class="block">
+      <h2>Tables</h2>
+
+      @if (tables().length === 0) {
+        <p class="state">No tables are assigned to you yet.</p>
+      }
+
+      <div class="tables">
+        @for (table of tables(); track table._id) {
+          <article class="table-card panel status-{{ table.status }}">
+            <div class="table-head">
+              <strong>Table {{ table.tableNumber }}</strong>
+              <span class="badge badge-{{ table.status }}">
+                {{ table.status }}
+              </span>
+            </div>
+
+            <small class="muted">
+              {{ table.currentGuests }} of {{ table.capacity }} seats
+            </small>
+
+            <div class="table-actions">
+              @if (table.status !== TableStatus.Occupied) {
+                <button
+                  type="button"
+                  class="btn-inline"
+                  (click)="setTableStatus(table, TableStatus.Occupied)"
+                >
+                  Seat guests
+                </button>
+              }
+
+              @if (table.status !== TableStatus.Available) {
+                <button
+                  type="button"
+                  class="btn-inline btn-quiet"
+                  (click)="setTableStatus(table, TableStatus.Available)"
+                >
+                  Clear
+                </button>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="block">
+      <h2>Orders to serve</h2>
+
+      @if (orders().length === 0) {
+        <p class="state">Nothing to serve right now.</p>
+      } @else {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Table</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Placed</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (order of orders(); track order._id) {
+                <tr>
+                  <td>#{{ order.orderNumber }}</td>
+                  <td>{{ order.tableNumber }}</td>
+                  <td>{{ customerName(order) }}</td>
+                  <td class="items">
+                    @for (line of order.items; track line.menuItem) {
+                      <span>{{ line.quantity }} x {{ line.name }}</span>
+                    }
+                  </td>
+                  <td>{{ order.createdAt | date: 'h:mm a' }}</td>
+                  <td>
+                    <span class="badge badge-{{ order.status }}">
+                      {{ order.status }}
+                    </span>
+                  </td>
+                  <td class="cell-actions">
+                    @if (order.status === OrderStatus.Ready) {
+                      <button
+                        type="button"
+                        class="btn-inline"
+                        (click)="markServed(order)"
+                      >
+                        Mark served
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</div>

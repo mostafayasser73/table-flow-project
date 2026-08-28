@@ -1,0 +1,123 @@
+<div class="page">
+  @if (isLoading()) {
+    <p class="state">Loading...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+    <a class="back" routerLink="/menu">Back to the menu</a>
+  }
+
+  @if (item(); as dish) {
+    <a class="back" routerLink="/menu">Back to the menu</a>
+
+    <article class="detail">
+      <div class="photo">
+        @if (dish.imageUrl) {
+          <img [src]="dishImage(dish)" [alt]="dish.name" />
+        }
+      </div>
+
+      <div class="info">
+        <span class="badge">{{ dish.category }}</span>
+
+        <h1>{{ dish.name }}</h1>
+
+        <div class="meta">
+          <span class="price">{{ dish.price }} EGP</span>
+          <span>{{ dish.preparationTime }}</span>
+          @if (dish.numReviews) {
+            <span>
+              {{ dish.rating }} out of 5 ({{ dish.numReviews }}
+              {{ dish.numReviews === 1 ? 'review' : 'reviews' }})
+            </span>
+          } @else {
+            <span>No reviews yet</span>
+          }
+        </div>
+
+        <p class="description">{{ dish.description }}</p>
+
+        @if (dish.available) {
+          <div class="order-row">
+            <input
+              type="number"
+              min="1"
+              max="20"
+              name="quantity"
+              [(ngModel)]="quantity"
+            />
+            <button type="button" (click)="addToCart()">Add to cart</button>
+          </div>
+
+          @if (addedMessage()) {
+            <p class="notice">
+              {{ addedMessage() }} — <a routerLink="/cart">go to cart</a>
+            </p>
+          }
+        } @else {
+          <p class="error">This dish is not available right now.</p>
+        }
+      </div>
+    </article>
+
+    <section class="reviews">
+      <h2>Customer reviews</h2>
+
+      @if (authService.currentUser()) {
+        <form class="review-form panel" (ngSubmit)="submitReview()">
+          <label for="rating">Your rating</label>
+          <select id="rating" name="rating" [(ngModel)]="newReview.rating">
+            <option [value]="5">5 — excellent</option>
+            <option [value]="4">4 — very good</option>
+            <option [value]="3">3 — good</option>
+            <option [value]="2">2 — poor</option>
+            <option [value]="1">1 — bad</option>
+          </select>
+
+          <label for="comment">Your review</label>
+          <textarea
+            id="comment"
+            name="comment"
+            required
+            maxlength="500"
+            placeholder="What did you think of it?"
+            [(ngModel)]="newReview.comment"
+          ></textarea>
+
+          @if (reviewError()) {
+            <p class="error">{{ reviewError() }}</p>
+          }
+
+          <button type="submit" [disabled]="!newReview.comment">
+            Post review
+          </button>
+        </form>
+      } @else {
+        <p class="state">
+          <a class="link" routerLink="/login">Log in</a> to leave a review.
+        </p>
+      }
+
+      @if (reviews().length === 0) {
+        <p class="state">Be the first to review this dish.</p>
+      }
+
+      <div class="review-list">
+        @for (review of reviews(); track review._id) {
+          <article class="review panel">
+            <div class="person">
+              <img class="avatar" [src]="reviewerImage(review)" alt="" />
+              <div>
+                <strong>{{ reviewerName(review) }}</strong>
+                <small>{{ review.rating }} out of 5</small>
+              </div>
+            </div>
+
+            <p>{{ review.comment }}</p>
+          </article>
+        }
+      </div>
+    </section>
+  }
+</div>

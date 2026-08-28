@@ -1,0 +1,130 @@
+<div class="page page-wide">
+  <header class="page-header">
+    <div>
+      <h1>Reservations</h1>
+      <p>{{ reservations().length }} shown</p>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <input
+      type="search"
+      name="search"
+      placeholder="Search by name..."
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="load()"
+    />
+
+    <select name="status" [(ngModel)]="statusFilter" (change)="load()">
+      <option value="all">All statuses</option>
+      <option value="pending">Pending</option>
+      <option value="confirmed">Confirmed</option>
+      <option value="cancelled">Cancelled</option>
+    </select>
+
+    <select name="when" [(ngModel)]="whenFilter" (change)="load()">
+      <option value="all">Any day</option>
+      <option value="today">Today</option>
+      <option value="tomorrow">Tomorrow</option>
+      <option value="week">This week</option>
+    </select>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="state">Loading reservations...</p>
+  } @else if (reservations().length === 0) {
+    <p class="state">No reservations matched.</p>
+  } @else {
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Number</th>
+            <th>Guest</th>
+            <th>When</th>
+            <th>Party</th>
+            <th>Notes</th>
+            <th>Table</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (reservation of reservations(); track reservation._id) {
+            <tr>
+              <td>#{{ reservation.reservationNumber }}</td>
+              <td>
+                <strong>{{ reservation.fullName }}</strong>
+                <small class="muted">{{ reservation.phone }}</small>
+              </td>
+              <td>
+                {{ reservation.date | date: 'd MMM y' }}
+                <small class="muted">{{ reservation.time }}</small>
+              </td>
+              <td>{{ reservation.guests }}</td>
+              <td class="notes">{{ reservation.specialRequests || '—' }}</td>
+              <td>
+                @if (reservation.status === ReservationStatus.Pending) {
+                  <select
+                    class="table-select"
+                    [name]="'table-' + reservation._id"
+                    [(ngModel)]="tableChoice[reservation._id]"
+                  >
+                    <option [ngValue]="undefined">Pick a table</option>
+                    @for (table of tablesFor(reservation); track table._id) {
+                      <option [ngValue]="table.tableNumber">
+                        Table {{ table.tableNumber }} ({{ table.capacity }})
+                      </option>
+                    }
+                  </select>
+                } @else {
+                  {{ reservation.tableNumber ?? '—' }}
+                }
+              </td>
+              <td>
+                <span class="badge badge-{{ reservation.status }}">
+                  {{ reservation.status }}
+                </span>
+              </td>
+              <td class="cell-actions">
+                @if (reservation.status === ReservationStatus.Pending) {
+                  <button
+                    type="button"
+                    class="btn-inline"
+                    (click)="confirm(reservation)"
+                  >
+                    Confirm
+                  </button>
+                }
+
+                @if (reservation.status !== ReservationStatus.Cancelled) {
+                  <button
+                    type="button"
+                    class="btn-inline btn-quiet"
+                    (click)="cancel(reservation)"
+                  >
+                    Cancel
+                  </button>
+                }
+
+                @if (canDelete) {
+                  <button
+                    type="button"
+                    class="btn-inline btn-danger"
+                    (click)="remove(reservation)"
+                  >
+                    Delete
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
