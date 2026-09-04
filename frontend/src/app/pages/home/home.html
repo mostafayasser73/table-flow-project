@@ -34,10 +34,6 @@
       <a class="see-all" routerLink="/menu">See all</a>
     </div>
 
-    @if (popular().length === 0) {
-      <p class="state">Nothing to show yet.</p>
-    }
-
     <div class="grid">
       @for (item of popular(); track item._id) {
         <a class="card" [routerLink]="['/menu', item._id]">
@@ -64,6 +60,8 @@
             </div>
           </div>
         </a>
+      } @empty {
+        <p class="state">Nothing to show yet.</p>
       }
     </div>
   </section>

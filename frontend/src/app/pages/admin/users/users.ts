@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { uploadedImage } from '../../../api-config';
+import { UserCard } from '../../../components/user-card/user-card';
 import { User, UserRole } from '../../../models/user.model';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
@@ -30,7 +31,7 @@ const emptyForm = (): UserForm => ({
 
 @Component({
   selector: 'app-users',
-  imports: [FormsModule],
+  imports: [FormsModule, UserCard],
   templateUrl: './users.html',
   styleUrl: './users.css',
 })
@@ -47,6 +48,9 @@ export class Users implements OnInit {
   protected readonly currentPage = signal(1);
   protected readonly totalPages = signal(1);
   protected readonly totalUsers = signal(0);
+
+  // 'table' or 'cards' — the @switch in the template follows this
+  protected viewMode: 'table' | 'cards' = 'table';
 
   protected roleFilter = 'all';
   protected statusFilter = 'all';

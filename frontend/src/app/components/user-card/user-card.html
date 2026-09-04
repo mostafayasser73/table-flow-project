@@ -1,0 +1,54 @@
+<article class="user-card panel">
+  <header>
+    <img class="avatar" [src]="avatar()" alt="" />
+
+    <div>
+      <strong>{{ user().firstName }} {{ user().lastName }}</strong>
+      <small>{{ user().email }}</small>
+    </div>
+  </header>
+
+  <dl>
+    <div>
+      <dt>Phone</dt>
+      <dd>{{ user().phone || '—' }}</dd>
+    </div>
+
+    <div>
+      <dt>Role</dt>
+      <dd>
+        <span class="badge">{{ user().role }}</span>
+      </dd>
+    </div>
+
+    <div>
+      <dt>Status</dt>
+      <dd>
+        <span class="badge badge-{{ user().status }}">{{ user().status }}</span>
+      </dd>
+    </div>
+  </dl>
+
+  <!-- anything the page writes inside <app-user-card> shows up here -->
+  <ng-content />
+
+  <div class="card-actions">
+    <button
+      type="button"
+      class="btn-inline btn-quiet"
+      (click)="edit.emit(user())"
+    >
+      Edit
+    </button>
+
+    @if (canDelete()) {
+      <button
+        type="button"
+        class="btn-inline btn-danger"
+        (click)="remove.emit(user())"
+      >
+        Delete
+      </button>
+    }
+  </div>
+</article>

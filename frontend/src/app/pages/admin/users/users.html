@@ -35,6 +35,12 @@
       <option value="active">Active</option>
       <option value="inactive">Inactive</option>
     </select>
+
+    <!-- two-way binding: the value chosen here is what @switch reads below -->
+    <select name="view" [(ngModel)]="viewMode">
+      <option value="table">Table view</option>
+      <option value="cards">Card view</option>
+    </select>
   </div>
 
   @if (errorMessage()) {
@@ -152,60 +158,87 @@
   } @else if (users().length === 0) {
     <p class="state">No users matched.</p>
   } @else {
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Phone</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
+    <!-- the same list, drawn in the way the manager picked -->
+    @switch (viewMode) {
+      @case ('cards') {
+        <div class="user-grid">
           @for (user of users(); track user._id) {
-            <tr>
-              <td>
-                <div class="person">
-                  <img class="avatar" [src]="avatar(user)" alt="" />
-                  <div>
-                    <strong>{{ user.firstName }} {{ user.lastName }}</strong>
-                    <small>{{ user.email }}</small>
-                  </div>
-                </div>
-              </td>
-              <td>{{ user.phone || '—' }}</td>
-              <td><span class="badge">{{ user.role }}</span></td>
-              <td>
-                <span class="badge badge-{{ user.status }}">
-                  {{ user.status }}
-                </span>
-              </td>
-              <td class="cell-actions">
-                <button
-                  type="button"
-                  class="btn-inline btn-quiet"
-                  (click)="openEdit(user)"
-                >
-                  Edit
-                </button>
-
-                @if (canDelete(user)) {
-                  <button
-                    type="button"
-                    class="btn-inline btn-danger"
-                    (click)="deleteUser(user)"
-                  >
-                    Delete
-                  </button>
-                }
-              </td>
-            </tr>
+            <app-user-card
+              [user]="user"
+              [canDelete]="canDelete(user)"
+              (edit)="openEdit($event)"
+              (remove)="deleteUser($event)"
+            >
+              <!-- projected into the card -->
+              @if (user._id === authService.currentUser()?._id) {
+                <p class="you">This is your account</p>
+              }
+            </app-user-card>
           }
-        </tbody>
-      </table>
-    </div>
+        </div>
+      }
+
+      @default {
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users(); track user._id) {
+                <tr>
+                  <td>
+                    <div class="person">
+                      <img class="avatar" [src]="avatar(user)" alt="" />
+                      <div>
+                        <strong
+                          >{{ user.firstName }} {{ user.lastName }}</strong
+                        >
+                        <small>{{ user.email }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ user.phone || '—' }}</td>
+                  <td>
+                    <span class="badge">{{ user.role }}</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-{{ user.status }}">
+                      {{ user.status }}
+                    </span>
+                  </td>
+                  <td class="cell-actions">
+                    <button
+                      type="button"
+                      class="btn-inline btn-quiet"
+                      (click)="openEdit(user)"
+                    >
+                      Edit
+                    </button>
+
+                    @if (canDelete(user)) {
+                      <button
+                        type="button"
+                        class="btn-inline btn-danger"
+                        (click)="deleteUser(user)"
+                      >
+                        Delete
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
 
     @if (totalPages() > 1) {
       <nav class="pagination">

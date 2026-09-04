@@ -15,6 +15,7 @@
       name="search"
       type="search"
       placeholder="Search menu..."
+      appAutofocus
       [(ngModel)]="searchTerm"
     />
     <button type="submit">Search</button>
@@ -48,49 +49,26 @@
 
   @if (isLoading()) {
     <p class="state">Loading dishes...</p>
-  } @else if (menuItems().length === 0 && !errorMessage()) {
-    <p class="state">No dishes matched your search.</p>
-  }
-
-  <div class="grid">
-    @for (item of menuItems(); track item._id) {
-      <article class="card">
-        <a class="thumb" [routerLink]="['/menu', item._id]">
-          @if (item.imageUrl) {
-            <img [src]="dishImage(item)" [alt]="item.name" />
+  } @else {
+    <div class="grid">
+      <!-- one child component per dish: the dish goes down with [item],
+           the click comes back up with (addToCart) -->
+      @for (item of menuItems(); track item._id) {
+        <app-dish-card
+          [item]="item"
+          [justAdded]="justAdded() === item._id"
+          (addToCart)="addToCart($event)"
+        >
+          <!-- projected into the card's <ng-content> -->
+          @if (!item.available) {
+            <span class="badge badge-cancelled">Sold out</span>
           }
-        </a>
-
-        <div class="card-body">
-          <div class="card-top">
-            <h2>
-              <a [routerLink]="['/menu', item._id]">{{ item.name }}</a>
-            </h2>
-            <span class="price">{{ item.price }} EGP</span>
-          </div>
-
-          <p class="description">{{ item.description }}</p>
-
-          <div class="card-meta">
-            <span class="badge">{{ item.category }}</span>
-            <span>{{ item.preparationTime }}</span>
-            @if (item.numReviews) {
-              <span>{{ item.rating }} ({{ item.numReviews }})</span>
-            }
-          </div>
-
-          <button
-            type="button"
-            class="add"
-            [class.added]="justAdded() === item._id"
-            (click)="addToCart(item)"
-          >
-            {{ justAdded() === item._id ? 'Added' : 'Add to cart' }}
-          </button>
-        </div>
-      </article>
-    }
-  </div>
+        </app-dish-card>
+      } @empty {
+        <p class="state">No dishes matched your search.</p>
+      }
+    </div>
+  }
 
   @if (totalPages() > 1) {
     <nav class="pagination">

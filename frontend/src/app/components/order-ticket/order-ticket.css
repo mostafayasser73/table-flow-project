@@ -1,0 +1,57 @@
+.ticket {
+  margin-bottom: 1rem;
+}
+
+.ticket.working {
+  border-left: 4px solid var(--info);
+}
+
+.ticket-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ticket-head strong {
+  font-size: 1.05rem;
+}
+
+.muted {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 0.15rem;
+}
+
+.ticket ul {
+  list-style: none;
+  margin: 0.85rem 0;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.ticket li {
+  padding: 0.15rem 0;
+  font-size: 0.95rem;
+}
+
+.qty {
+  display: inline-block;
+  min-width: 2rem;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+.waited {
+  font-weight: 600;
+}
+
+.ticket.late {
+  border-left: 4px solid var(--danger);
+}
+
+.ticket.late .waited {
+  color: var(--danger);
+}

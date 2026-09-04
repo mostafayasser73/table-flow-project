@@ -1,22 +1,13 @@
 import { Component, computed, inject } from '@angular/core';
-import {
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
-} from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 import { uploadedImage } from './api-config';
+import { NavLink } from './models/nav-link.model';
 import { UserRole } from './models/user.model';
 import { AuthService } from './services/auth.service';
 import { CartService } from './services/cart.service';
-
-// one entry in the navigation bar, and the roles allowed to see it
-interface NavLink {
-  label: string;
-  path: string;
-  roles: UserRole[];
-}
+import { SiteFooter } from './components/site-footer/site-footer';
+import { SiteHeader } from './components/site-header/site-header';
 
 const STAFF_LINKS: NavLink[] = [
   {
@@ -52,8 +43,11 @@ const STAFF_LINKS: NavLink[] = [
   { label: 'My section', path: '/waiter', roles: [UserRole.Waiter] },
 ];
 
+// The root component only assembles the page: the header, the routed page,
+// and the footer. The header is a child component, so everything it needs is
+// passed down with property binding and it reports the log out back up.
 @Component({
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, SiteHeader, SiteFooter],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
@@ -74,12 +68,12 @@ export class App {
     return STAFF_LINKS.filter((link) => link.roles.includes(role));
   });
 
-  protected avatar(): string {
-    return uploadedImage(
+  protected readonly avatar = computed(() =>
+    uploadedImage(
       'users',
       this.authService.currentUser()?.imageUrl ?? 'default-user.webp',
-    );
-  }
+    ),
+  );
 
   protected onLogout(): void {
     this.authService.logout();

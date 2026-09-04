@@ -1,0 +1,29 @@
+<!-- two classes decided at the same time, which is what ngClass is for -->
+<article
+  class="ticket panel"
+  [ngClass]="{ working: working(), late: waitingMinutes() >= 20 }"
+>
+  <div class="ticket-head">
+    <strong>#{{ order().orderNumber }}</strong>
+    <span class="badge">{{ where() }}</span>
+  </div>
+
+  <small class="muted">
+    {{ customerName() }} · {{ order().createdAt | date: 'h:mm a' }}
+
+    <!-- late tickets go red without a second CSS class -->
+    <span class="waited">· waiting {{ waitingLabel() }}</span>
+  </small>
+
+  <ul>
+    @for (line of order().items; track line.menuItem) {
+      <li>
+        <span class="qty">{{ line.quantity }}x</span> {{ line.name }}
+      </li>
+    }
+  </ul>
+
+  <button type="button" (click)="advance.emit(order())">
+    {{ actionLabel() }}
+  </button>
+</article>

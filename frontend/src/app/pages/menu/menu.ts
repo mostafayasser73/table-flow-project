@@ -1,16 +1,17 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
-import { uploadedImage } from '../../api-config';
+import { DishCard } from '../../components/dish-card/dish-card';
+import { Autofocus } from '../../directives/autofocus';
 import { MenuItem } from '../../models/menu-item.model';
 import { CartService } from '../../services/cart.service';
 import { MenuService } from '../../services/menu.service';
 
 @Component({
   selector: 'app-menu',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, DishCard, Autofocus],
   templateUrl: './menu.html',
   styleUrl: './menu.css',
 })
@@ -66,10 +67,6 @@ export class Menu implements OnInit {
     this.currentPage.set(page);
     this.loadMenuItems();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  protected dishImage(item: MenuItem): string {
-    return uploadedImage('menu-items', item.imageUrl);
   }
 
   protected addToCart(item: MenuItem): void {
