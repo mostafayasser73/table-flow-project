@@ -1,0 +1,345 @@
+<div class="page page-wide lab">
+  <header class="page-header">
+    <div>
+      <h1>Angular lab</h1>
+      <p>
+        The same building blocks the rest of Table Flow uses, next to the older
+        way of writing them.
+      </p>
+    </div>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  <!-- ============ 1. structural directives, the old syntax ============ -->
+  <section class="panel">
+    <h2>Structural directives (legacy)</h2>
+
+    <label class="check">
+      <input type="checkbox" [(ngModel)]="showLegacyList" name="showLegacy" />
+      Show the list
+    </label>
+
+    <div *ngIf="showLegacyList; else hiddenList">
+      <p class="muted">*ngIf kept this block in the page.</p>
+
+      <ul>
+        <li *ngFor="let dish of dishes(); let i = index">
+          {{ i + 1 }} - {{ dish.name }} — {{ dish.price }} EGP
+        </li>
+      </ul>
+    </div>
+
+    <ng-template #hiddenList>
+      <p class="muted">*ngIf removed the list from the DOM.</p>
+    </ng-template>
+
+    <label for="role">Role</label>
+    <select id="role" name="role" [(ngModel)]="role">
+      <option value="admin">admin</option>
+      <option value="chef">chef</option>
+      <option value="waiter">waiter</option>
+      <option value="ghost">something else</option>
+    </select>
+
+    <div [ngSwitch]="role">
+      <p *ngSwitchCase="'admin'">Welcome Admin. You can manage the system.</p>
+      <p *ngSwitchCase="'chef'">Welcome Chef. You can see the kitchen board.</p>
+      <p *ngSwitchCase="'waiter'">Welcome Waiter. You can serve the tables.</p>
+      <p *ngSwitchDefault>Unknown role.</p>
+    </div>
+  </section>
+
+  <!-- ============ 2. the same thing with the new control flow ============ -->
+  <section class="panel">
+    <h2>Control flow (Angular 22) with every loop variable</h2>
+
+    @for (
+      dish of dishes();
+      track dish._id;
+      let i = $index;
+      let count = $count;
+      let first = $first;
+      let last = $last;
+      let even = $even;
+      let odd = $odd
+    ) {
+      <p class="row-line" [class.even]="even">
+        {{ i + 1 }} of {{ count }} — {{ dish.name }}
+        @if (first) {
+          <span class="badge">first</span>
+        }
+        @if (last) {
+          <span class="badge">last</span>
+        }
+        <span class="muted"
+          >{{ even ? 'even' : '' }}{{ odd ? 'odd' : '' }}</span
+        >
+      </p>
+    } @empty {
+      <p class="state">No dishes came back from the server.</p>
+    }
+  </section>
+
+  <!-- ============ 3. ngClass and ngStyle ============ -->
+  <section class="panel">
+    <h2>ngClass and ngStyle</h2>
+
+    <p
+      [ngClass]="{ highlight: showLegacyList, quiet: !showLegacyList }"
+      [ngStyle]="{
+        color: showLegacyList ? 'var(--brand)' : 'var(--muted)',
+        'font-weight': showLegacyList ? '700' : '400',
+      }"
+    >
+      This line follows the checkbox above.
+    </p>
+  </section>
+
+  <!-- ============ 4. legacy component communication ============ -->
+  <section class="panel">
+    <h2>&#64;Input, &#64;Output and EventEmitter</h2>
+
+    <div class="legacy-list">
+      @for (dish of dishes(); track dish._id) {
+        <app-legacy-child [dish]="dish" (picked)="onPicked($event)" />
+      }
+    </div>
+
+    @if (picked()) {
+      <p class="muted">The child sent up: {{ picked() }}</p>
+    }
+  </section>
+
+  <!-- ============ 5. content projection with named slots ============ -->
+  <section class="panel">
+    <h2>Content projection with slots</h2>
+
+    <div class="slots">
+      <app-slots-card>
+        <card-title>Today's special</card-title>
+        <card-body>
+          @if (dishes().length) {
+            {{ dishes()[0].name }} at {{ dishes()[0].price }} EGP
+          }
+        </card-body>
+        Anything outside a slot lands in the default one.
+      </app-slots-card>
+
+      <!-- nothing is projected here, so the fallback content shows -->
+      <app-slots-card />
+    </div>
+  </section>
+
+  <!-- ============ 6. every lifecycle hook ============ -->
+  <section class="panel">
+    <h2>Lifecycle hooks</h2>
+
+    <div class="lab-actions">
+      <input name="loggerLabel" [(ngModel)]="loggerLabel" />
+
+      <button
+        type="button"
+        class="btn-inline btn-quiet"
+        (click)="isLoggerVisible = !isLoggerVisible"
+      >
+        {{ isLoggerVisible ? 'Destroy it' : 'Create it' }}
+      </button>
+    </div>
+
+    <p class="muted">
+      Typing in the box runs ngOnChanges, and destroying it runs ngOnDestroy
+      (see the browser console).
+    </p>
+
+    @if (isLoggerVisible) {
+      <app-lifecycle-logger [label]="loggerLabel">
+        <p #projected>Projected from the lab page</p>
+      </app-lifecycle-logger>
+    }
+  </section>
+
+  <!-- ============ 7. untracked and manual effect cleanup ============ -->
+  <section class="panel">
+    <h2>untracked() and an effect with manualCleanup</h2>
+
+    <div class="lab-actions">
+      <button
+        type="button"
+        class="btn-inline"
+        (click)="clicks.set(clicks() + 1)"
+      >
+        Clicks: {{ clicks() }} (untracked)
+      </button>
+
+      <button
+        type="button"
+        class="btn-inline"
+        (click)="watched.set('changed at ' + clicks())"
+      >
+        Change the watched signal
+      </button>
+
+      <button
+        type="button"
+        class="btn-inline btn-danger"
+        [disabled]="!isEffectAlive()"
+        (click)="stopEffect()"
+      >
+        {{ isEffectAlive() ? 'Destroy the effect' : 'Effect destroyed' }}
+      </button>
+    </div>
+
+    <ol class="log">
+      @for (line of effectLog(); track $index) {
+        <li>{{ line }}</li>
+      }
+    </ol>
+  </section>
+
+  <!-- ============ 8. a signal form submitted by hand ============ -->
+  <section class="panel">
+    <h2>Signal form submitted with submit()</h2>
+
+    <label for="note">Kitchen note</label>
+    <input id="note" [formField]="noteForm.note" />
+
+    @if (noteForm.note().invalid() && noteForm.note().touched()) {
+      <div class="error-message">
+        @for (error of noteForm.note().errors(); track error) {
+          <p>{{ error.message }}</p>
+        }
+      </div>
+    }
+
+    <p class="muted">Length (computed signal): {{ noteLength() }}</p>
+
+    <div class="lab-actions">
+      <button
+        type="button"
+        class="btn-inline"
+        [disabled]="noteForm().submitting()"
+        (click)="saveNote()"
+      >
+        {{ noteForm().submitting() ? 'Saving...' : 'Save the note' }}
+      </button>
+    </div>
+
+    @if (saved()) {
+      <p class="notice">{{ saved() }}</p>
+    }
+  </section>
+
+  <!-- ============ 9. a reactive form with a FormArray ============ -->
+  <section class="panel">
+    <h2>Reactive form with a FormArray</h2>
+
+    <form [formGroup]="listForm" (ngSubmit)="saveList()">
+      <label for="supplier">Supplier</label>
+      <input id="supplier" type="text" formControlName="supplier" />
+
+      @if (
+        listForm.controls.supplier.invalid && listForm.controls.supplier.touched
+      ) {
+        <p class="error-message">*The supplier is required</p>
+      }
+
+      <label>Items</label>
+
+      <!-- the rows come from the FormArray, so they can be added and removed -->
+      <div formArrayName="items">
+        @for (control of items.controls; track $index) {
+          <div class="lab-actions">
+            <input type="text" [formControlName]="$index" />
+
+            <button
+              type="button"
+              class="btn-inline btn-quiet"
+              [disabled]="items.length === 1"
+              (click)="removeItem($index)"
+            >
+              Remove
+            </button>
+
+            @if (control.invalid && control.touched) {
+              <span class="error-message">*Write the item</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="lab-actions">
+        <button type="button" class="btn-inline btn-quiet" (click)="addItem()">
+          + Add item
+        </button>
+
+        <button type="submit" class="btn-inline">Save the list</button>
+      </div>
+    </form>
+
+    @if (listResult()) {
+      <p class="notice">{{ listResult() }}</p>
+    }
+  </section>
+
+  <!-- ============ 10. a signal form over a nested model with an array ==== -->
+  <section class="panel">
+    <h2>Signal form with a nested model and an array</h2>
+
+    <div class="row">
+      <div class="field">
+        <label for="contactName">Contact name</label>
+        <input id="contactName" [formField]="orderForm.contact.name" />
+
+        @if (
+          orderForm.contact.name().invalid() &&
+          orderForm.contact.name().touched()
+        ) {
+          <div class="error-message">
+            @for (error of orderForm.contact.name().errors(); track error) {
+              <p>{{ error.message }}</p>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="field">
+        <label for="contactPhone">Contact phone</label>
+        <input id="contactPhone" [formField]="orderForm.contact.phone" />
+      </div>
+    </div>
+
+    <!-- every item of the array got the same rules through applyEach -->
+    @for (line of orderForm.lines; track $index) {
+      <div class="row">
+        <div class="field">
+          <label>Dish</label>
+          <input [formField]="line.product" />
+
+          @if (line.product().invalid() && line.product().touched()) {
+            <div class="error-message">
+              @for (error of line.product().errors(); track error) {
+                <p>{{ error.message }}</p>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="field">
+          <label>Quantity</label>
+          <input type="number" [formField]="line.quantity" />
+        </div>
+      </div>
+    }
+
+    <div class="lab-actions">
+      <button type="button" class="btn-inline btn-quiet" (click)="addLine()">
+        + Add line
+      </button>
+    </div>
+
+    <p class="muted">Model: {{ orderModel() | json }}</p>
+  </section>
+</div>

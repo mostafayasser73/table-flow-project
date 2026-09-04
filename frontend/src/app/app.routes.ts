@@ -29,6 +29,13 @@ export const routes: Routes = [
   { path: 'menu/:id', component: ItemDetails },
   { path: 'cart', component: Cart },
   { path: 'login', component: Login },
+  // A page that demonstrates the Angular building blocks on the real data.
+  // loadComponent keeps it out of the first download: the file is only
+  // fetched when somebody opens /lab.
+  {
+    path: 'lab',
+    loadComponent: () => import('./pages/lab/lab').then((m) => m.Lab),
+  },
   { path: 'signup', component: Signup },
 
   // ---- any logged in user ----

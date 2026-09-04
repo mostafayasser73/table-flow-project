@@ -1,0 +1,82 @@
+.lab section {
+  margin-bottom: 1.5rem;
+}
+
+.lab h2 {
+  font-size: 1.05rem;
+  margin-bottom: 0.9rem;
+}
+
+.lab ul {
+  margin: 0.6rem 0;
+  padding-left: 1.2rem;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.check input {
+  width: auto;
+  margin: 0;
+}
+
+.row-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.row-line.even {
+  background: var(--bg);
+}
+
+.highlight {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--brand-soft);
+}
+
+.quiet {
+  padding: 0.5rem 0.75rem;
+}
+
+.legacy-list,
+.slots {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.lab-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.75rem 0;
+}
+
+.lab-actions input {
+  width: auto;
+  margin: 0;
+}
+
+.log {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}

@@ -1,0 +1,13 @@
+<div class="legacy-card">
+  <strong>{{ dish?.name }}</strong>
+  <small>{{ dish?.price }} EGP</small>
+
+  <button
+    type="button"
+    class="btn-inline btn-quiet"
+    [attr.aria-label]="'Pick ' + dish?.name"
+    (click)="select()"
+  >
+    Pick with &#64;Output
+  </button>
+</div>

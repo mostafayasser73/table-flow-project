@@ -1,0 +1,20 @@
+<div class="logger">
+  <h3>{{ label }}</h3>
+
+  <!-- what the parent puts inside the component -->
+  <ng-content />
+
+  <p #ownParagraph class="own">An element from the component's own template</p>
+
+  <ol class="log">
+    @for (line of log(); track $index) {
+      <li>{{ line }}</li>
+    }
+  </ol>
+
+  <p class="counters">
+    ngDoCheck: {{ doCheckCount }} · ngAfterContentChecked:
+    {{ contentCheckedCount }} · ngAfterViewChecked: {{ viewCheckedCount }} ·
+    afterEveryRender: see the console
+  </p>
+</div>

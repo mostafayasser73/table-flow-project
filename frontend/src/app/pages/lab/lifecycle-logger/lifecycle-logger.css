@@ -1,0 +1,26 @@
+.logger h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.own {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.log {
+  margin: 0.75rem 0;
+  padding-left: 1.2rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.counters {
+  margin: 0;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.78rem;
+}

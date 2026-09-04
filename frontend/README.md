@@ -145,6 +145,7 @@ frontend/
 │   │   │   ├── order.model.ts
 │   │   │   ├── reservation.model.ts
 │   │   │   ├── review.model.ts
+│   │   │   ├── nav-link.model.ts
 │   │   │   ├── table.model.ts
 │   │   │   └── user.model.ts
 │   │   │
@@ -159,6 +160,16 @@ frontend/
 │   │   │   ├── table.service.ts
 │   │   │   └── user.service.ts
 │   │   │
+│   │   ├── pages/lab/            every Angular concept, on the real data
+│   │   │
+│   │   ├── components/
+│   │   │   ├── site-header/      navigation bar (input / output)
+│   │   │   ├── site-footer/
+│   │   │   ├── dish-card/        one dish on the menu
+│   │   │   ├── order-ticket/     one ticket on the kitchen board
+│   │   │   └── user-card/        one account in the card view
+│   │   │
+│   │   ├── directives/autofocus.ts
 │   │   ├── guards/auth-guard.ts
 │   │   ├── interceptors/auth-interceptor.ts
 │   │   │
@@ -205,3 +216,39 @@ frontend/
   itself, so a customer cannot send their own prices.
 - If the port in the backend `.env` is not `5001`, change `API_BASE_URL` in
   `src/app/api-config.ts`.
+
+---
+
+## Where each Angular topic lives
+
+| Topic | Where to look |
+| --- | --- |
+| Components split into a page | `app.html` with `site-header`, `site-footer` |
+| `input()` / `output()` | `components/site-header`, `dish-card`, `order-ticket`, `user-card` |
+| Content projection (`ng-content`) | `dish-card`, `user-card` |
+| Data binding (`{{ }}`, `[ ]`, `( )`, `[( )]`) | every page; two-way binding in the toolbars and template-driven forms |
+| `ngClass` | `components/order-ticket/order-ticket.html` |
+| Control flow `@if` / `@else` | `app`, `menu`, `profile`, admin pages |
+| `@for` with `track` and `@empty` | `menu`, `kitchen`, `home`, `waiter`, `item-details`, `dashboard` |
+| `@switch` | `pages/admin/users` (table / card view), `pages/profile` (tabs) |
+| Custom directive | `directives/autofocus.ts`, used in `menu` and `login` |
+| Signals: `signal` / `computed` / `effect` | `services/cart.service.ts`, `services/auth.service.ts`, every page |
+| Lifecycle: `ngOnInit` | most pages |
+| Lifecycle: `ngOnChanges`, `ngOnDestroy` | `components/order-ticket` |
+| Lifecycle: `ngAfterViewInit` + `viewChild` | `pages/admin/dashboard` (the canvas chart) |
+| `DestroyRef` | `pages/kitchen` (the auto refresh timer) |
+| `afterNextRender` | `directives/autofocus.ts` |
+| Template-driven form | `pages/login`, `pages/reservation`, admin toolbars |
+| Reactive form | `pages/admin/menu-management` (the add / edit dish panel) |
+| Signal form | `pages/signup` (server errors land on the field) |
+| Signal form: nested model, arrays, `submit()`, `applyEach` | `pages/lab` |
+| Reactive form with `FormArray` | `pages/lab` |
+| Legacy `*ngIf` / `*ngFor` / `*ngSwitch` | `pages/lab` (everywhere else uses `@if` / `@for` / `@switch`) |
+| Legacy `@Input()` / `@Output()` + `EventEmitter` | `pages/lab/legacy-child` |
+| Every lifecycle hook in order, `@ViewChild` / `@ContentChild` | `pages/lab/lifecycle-logger` |
+| `ng-content select="..."` and fallback content | `pages/lab/slots-card` |
+| `untracked()` and `effect(..., { manualCleanup: true })` | `pages/lab` |
+| `ngStyle`, loop variables `$index $count $first $last $even $odd` | `pages/lab` |
+| `asReadonly()` | `services/cart.service.ts` |
+| Attribute binding `[attr.]` | `pages/admin/menu-management`, `pages/lab/legacy-child` |
+| `titlecase` pipe | `pages/admin/menu-management` |

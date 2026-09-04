@@ -1,0 +1,17 @@
+<div class="slots-card">
+  <header>
+    <ng-content select="card-title">
+      <!-- shown when the parent does not fill this slot -->
+      Untitled card
+    </ng-content>
+  </header>
+
+  <div class="body">
+    <ng-content select="card-body">Nothing to show here yet.</ng-content>
+  </div>
+
+  <footer>
+    <!-- everything that did not match a slot above -->
+    <ng-content />
+  </footer>
+</div>
