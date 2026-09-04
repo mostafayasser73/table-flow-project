@@ -1,32 +1,50 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { TitleCasePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 
 import { uploadedImage } from '../../../api-config';
 import { MenuCategory, MenuItem } from '../../../models/menu-item.model';
 import { MenuService } from '../../../services/menu.service';
 
-interface DishForm {
-  name: string;
-  description: string;
-  price: number | null;
-  category: MenuCategory;
-  preparationTime: string;
-  available: boolean;
-}
+// The Add / Edit panel is a Reactive Form: the whole form lives here in
+// TypeScript, together with its rules, and the template only connects to it.
+const buildDishForm = () =>
+  new FormGroup({
+    name: new FormControl('', [
+      Validators.required,
+      Validators.minLength(3),
+      Validators.maxLength(100),
+    ]),
 
-const emptyForm = (): DishForm => ({
-  name: '',
-  description: '',
-  price: null,
-  category: MenuCategory.Pizza,
-  preparationTime: '15-20 min',
-  available: true,
-});
+    description: new FormControl('', [
+      Validators.required,
+      Validators.maxLength(1000),
+    ]),
+
+    price: new FormControl<number | null>(null, [
+      Validators.required,
+      Validators.min(0),
+    ]),
+
+    category: new FormControl<MenuCategory>(MenuCategory.Pizza, [
+      Validators.required,
+    ]),
+
+    preparationTime: new FormControl('15-20 min', [Validators.required]),
+
+    available: new FormControl(true),
+  });
 
 @Component({
   selector: 'app-menu-management',
-  imports: [FormsModule],
+  imports: [FormsModule, ReactiveFormsModule, TitleCasePipe],
   templateUrl: './menu-management.html',
   styleUrl: './menu-management.css',
 })
@@ -48,7 +66,7 @@ export class MenuManagement implements OnInit {
 
   protected readonly isFormOpen = signal(false);
   protected readonly editingId = signal<string | null>(null);
-  protected form: DishForm = emptyForm();
+  protected readonly dishForm = buildDishForm();
   private pickedPhoto?: File;
   protected readonly formError = signal('');
 
@@ -103,7 +121,15 @@ export class MenuManagement implements OnInit {
   }
 
   protected openAdd(): void {
-    this.form = emptyForm();
+    this.dishForm.reset({
+      name: '',
+      description: '',
+      price: null,
+      category: MenuCategory.Pizza,
+      preparationTime: '15-20 min',
+      available: true,
+    });
+
     this.editingId.set(null);
     this.pickedPhoto = undefined;
     this.formError.set('');
@@ -111,14 +137,16 @@ export class MenuManagement implements OnInit {
   }
 
   protected openEdit(item: MenuItem): void {
-    this.form = {
+    // setValue fills every control at once, so the panel opens on the dish
+    this.dishForm.setValue({
       name: item.name,
       description: item.description,
       price: item.price,
       category: item.category,
       preparationTime: item.preparationTime,
       available: item.available,
-    };
+    });
+
     this.editingId.set(item._id);
     this.pickedPhoto = undefined;
     this.formError.set('');
@@ -137,13 +165,22 @@ export class MenuManagement implements OnInit {
   protected saveDish(): void {
     this.formError.set('');
 
+    // a form that is still invalid is not sent: every field is marked as
+    // touched instead, which is what makes the messages below them appear
+    if (this.dishForm.invalid) {
+      this.dishForm.markAllAsTouched();
+      return;
+    }
+
+    const value = this.dishForm.getRawValue();
+
     const data = new FormData();
-    data.append('name', this.form.name);
-    data.append('description', this.form.description);
-    data.append('price', String(this.form.price ?? 0));
-    data.append('category', this.form.category);
-    data.append('preparationTime', this.form.preparationTime);
-    data.append('available', String(this.form.available));
+    data.append('name', value.name ?? '');
+    data.append('description', value.description ?? '');
+    data.append('price', String(value.price ?? 0));
+    data.append('category', value.category ?? MenuCategory.Pizza);
+    data.append('preparationTime', value.preparationTime ?? '');
+    data.append('available', String(value.available));
 
     if (this.pickedPhoto) {
       data.append('imageUrl', this.pickedPhoto);

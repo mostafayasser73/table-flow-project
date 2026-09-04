@@ -185,6 +185,14 @@ button:disabled {
   font-size: 0.88rem;
 }
 
+/* the small line under a field that failed validation */
+.error-message {
+  margin: -0.5rem 0 0.75rem;
+  color: var(--danger);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
 .notice {
   margin: 0 0 1rem;
   padding: 0.6rem 0.85rem;

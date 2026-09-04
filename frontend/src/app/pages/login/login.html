@@ -3,7 +3,8 @@
     <h1>Welcome back</h1>
     <p class="subtitle">Log in to order from Table Flow.</p>
 
-    <!-- #loginForm gives the template access to Angular's form state -->
+    <!-- #loginForm gives the template access to Angular's form state, and
+         each control gets its own reference so it can report its errors -->
     <form #loginForm="ngForm" (ngSubmit)="onSubmit()">
       <label for="email">Email</label>
       <input
@@ -12,8 +13,20 @@
         type="email"
         placeholder="you@example.com"
         required
+        email
+        appAutofocus
         [(ngModel)]="form.email"
+        #emailRef="ngModel"
       />
+
+      @if (emailRef.invalid && emailRef.touched) {
+        @if (emailRef.errors?.['required']) {
+          <p class="error-message">*Your email is required</p>
+        }
+        @if (emailRef.errors?.['email']) {
+          <p class="error-message">*Please write a valid email</p>
+        }
+      }
 
       <label for="password">Password</label>
       <input
@@ -24,7 +37,17 @@
         required
         minlength="8"
         [(ngModel)]="form.password"
+        #passwordRef="ngModel"
       />
+
+      @if (passwordRef.invalid && passwordRef.touched) {
+        @if (passwordRef.errors?.['required']) {
+          <p class="error-message">*Your password is required</p>
+        }
+        @if (passwordRef.errors?.['minlength']) {
+          <p class="error-message">*The password is at least 8 characters</p>
+        }
+      }
 
       @if (errorMessage()) {
         <p class="error">{{ errorMessage() }}</p>

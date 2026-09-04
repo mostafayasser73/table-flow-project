@@ -3,12 +3,13 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
+import { Autofocus } from '../../directives/autofocus';
 import { AuthService } from '../../services/auth.service';
 import { LoginData } from '../../models/user.model';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Autofocus],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

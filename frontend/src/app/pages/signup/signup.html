@@ -3,82 +3,120 @@
     <h1>Create your account</h1>
     <p class="subtitle">New accounts start as customers.</p>
 
-    <form #signupForm="ngForm" (ngSubmit)="onSubmit()">
+    <!-- [formRoot] takes over the submit event: no page reload, and the
+         action in the component runs once every rule passed -->
+    <form [formRoot]="signupForm">
       <div class="row">
         <div class="field">
           <label for="firstName">First name</label>
           <input
             id="firstName"
-            name="firstName"
             type="text"
-            required
-            minlength="2"
-            [(ngModel)]="form.firstName"
+            [formField]="signupForm.firstName"
           />
+
+          @if (
+            signupForm.firstName().invalid() && signupForm.firstName().touched()
+          ) {
+            <div class="error-message">
+              @for (error of signupForm.firstName().errors(); track error) {
+                <p>{{ error.message }}</p>
+              }
+            </div>
+          }
         </div>
 
         <div class="field">
           <label for="lastName">Last name</label>
-          <input
-            id="lastName"
-            name="lastName"
-            type="text"
-            required
-            minlength="2"
-            [(ngModel)]="form.lastName"
-          />
+          <input id="lastName" type="text" [formField]="signupForm.lastName" />
+
+          @if (
+            signupForm.lastName().invalid() && signupForm.lastName().touched()
+          ) {
+            <div class="error-message">
+              @for (error of signupForm.lastName().errors(); track error) {
+                <p>{{ error.message }}</p>
+              }
+            </div>
+          }
         </div>
       </div>
 
       <label for="email">Email</label>
       <input
         id="email"
-        name="email"
         type="email"
         placeholder="you@example.com"
-        required
-        [(ngModel)]="form.email"
+        [formField]="signupForm.email"
       />
+
+      @if (signupForm.email().invalid() && signupForm.email().touched()) {
+        <div class="error-message">
+          @for (error of signupForm.email().errors(); track error) {
+            <p>{{ error.message }}</p>
+          }
+        </div>
+      }
 
       <!-- the backend accepts 10 to 15 digits, with an optional leading + -->
       <label for="phone">Phone</label>
       <input
         id="phone"
-        name="phone"
         type="tel"
         placeholder="01012345678"
-        required
-        pattern="\+?[0-9]{10,15}"
-        [(ngModel)]="form.phone"
+        [formField]="signupForm.phone"
       />
+
+      @if (signupForm.phone().invalid() && signupForm.phone().touched()) {
+        <div class="error-message">
+          @for (error of signupForm.phone().errors(); track error) {
+            <p>{{ error.message }}</p>
+          }
+        </div>
+      }
 
       <label for="password">Password</label>
       <input
         id="password"
-        name="password"
         type="password"
         placeholder="At least 8 characters"
-        required
-        minlength="8"
-        [(ngModel)]="form.password"
+        [formField]="signupForm.password"
       />
+
+      @if (signupForm.password().invalid() && signupForm.password().touched()) {
+        <div class="error-message">
+          @for (error of signupForm.password().errors(); track error) {
+            <p>{{ error.message }}</p>
+          }
+        </div>
+      }
 
       <label for="confirmPassword">Confirm password</label>
       <input
         id="confirmPassword"
-        name="confirmPassword"
         type="password"
-        required
-        minlength="8"
-        [(ngModel)]="form.confirmPassword"
+        [formField]="signupForm.confirmPassword"
       />
 
-      @if (errorMessage()) {
-        <p class="error">{{ errorMessage() }}</p>
+      @if (
+        signupForm.confirmPassword().invalid() &&
+        signupForm.confirmPassword().touched()
+      ) {
+        <div class="error-message">
+          @for (error of signupForm.confirmPassword().errors(); track error) {
+            <p>{{ error.message }}</p>
+          }
+        </div>
       }
 
-      <button type="submit" [disabled]="signupForm.invalid || isLoading()">
-        {{ isLoading() ? 'Creating account...' : 'Sign up' }}
+      <!-- errors the server sent back for the whole form -->
+      @for (error of signupForm().errors(); track error) {
+        <p class="error">{{ error.message }}</p>
+      }
+
+      <!-- submitting() is on while the request is in the air -->
+      <button type="submit" [disabled]="signupForm().submitting()">
+        {{ signupForm().submitting() ? 'Creating account...' : 'Sign up' }}
       </button>
     </form>
 

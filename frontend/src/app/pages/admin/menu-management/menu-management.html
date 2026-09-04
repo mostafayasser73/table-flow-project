@@ -26,7 +26,7 @@
     >
       <option value="all">All categories</option>
       @for (category of categories; track category) {
-        <option [value]="category">{{ category }}</option>
+        <option [value]="category">{{ category | titlecase }}</option>
       }
     </select>
   </div>
@@ -36,46 +36,69 @@
   }
 
   @if (isFormOpen()) {
-    <form class="form-panel panel" (ngSubmit)="saveDish()">
+    <!-- [formGroup] connects this form to the FormGroup in the component,
+         and every control finds its place through formControlName -->
+    <form
+      class="form-panel panel"
+      [formGroup]="dishForm"
+      (ngSubmit)="saveDish()"
+    >
       <h2>{{ editingId() ? 'Edit dish' : 'Add dish' }}</h2>
 
       <label for="name">Name</label>
-      <input
-        id="name"
-        name="name"
-        type="text"
-        required
-        minlength="3"
-        [(ngModel)]="form.name"
-      />
+      <input id="name" type="text" formControlName="name" />
+
+      @if (dishForm.controls.name.invalid && dishForm.controls.name.touched) {
+        @if (dishForm.controls.name.errors?.['required']) {
+          <p class="error-message">*The dish needs a name</p>
+        }
+        @if (dishForm.controls.name.errors?.['minlength']) {
+          <p class="error-message">*The name must be at least 3 characters</p>
+        }
+        @if (dishForm.controls.name.errors?.['maxlength']) {
+          <p class="error-message">*The name cannot pass 100 characters</p>
+        }
+      }
 
       <label for="description">Description</label>
-      <textarea
-        id="description"
-        name="description"
-        required
-        maxlength="1000"
-        [(ngModel)]="form.description"
-      ></textarea>
+      <textarea id="description" formControlName="description"></textarea>
+
+      @if (
+        dishForm.controls.description.invalid &&
+        dishForm.controls.description.touched
+      ) {
+        @if (dishForm.controls.description.errors?.['required']) {
+          <p class="error-message">*The dish needs a description</p>
+        }
+        @if (dishForm.controls.description.errors?.['maxlength']) {
+          <p class="error-message">
+            *The description cannot pass 1000 characters
+          </p>
+        }
+      }
 
       <div class="row">
         <div class="field">
           <label for="price">Price (EGP)</label>
-          <input
-            id="price"
-            name="price"
-            type="number"
-            min="0"
-            required
-            [(ngModel)]="form.price"
-          />
+          <input id="price" type="number" formControlName="price" />
+
+          @if (
+            dishForm.controls.price.invalid && dishForm.controls.price.touched
+          ) {
+            @if (dishForm.controls.price.errors?.['required']) {
+              <p class="error-message">*The price is required</p>
+            }
+            @if (dishForm.controls.price.errors?.['min']) {
+              <p class="error-message">*The price cannot be negative</p>
+            }
+          }
         </div>
 
         <div class="field">
           <label for="category">Category</label>
-          <select id="category" name="category" [(ngModel)]="form.category">
+          <select id="category" formControlName="category">
             @for (category of categories; track category) {
-              <option [value]="category">{{ category }}</option>
+              <option [value]="category">{{ category | titlecase }}</option>
             }
           </select>
         </div>
@@ -84,26 +107,32 @@
           <label for="prep">Preparation time</label>
           <input
             id="prep"
-            name="prep"
             type="text"
-            required
             placeholder="15-20 min"
-            [(ngModel)]="form.preparationTime"
+            formControlName="preparationTime"
           />
+
+          @if (
+            dishForm.controls.preparationTime.invalid &&
+            dishForm.controls.preparationTime.touched
+          ) {
+            <p class="error-message">*Tell the kitchen how long it takes</p>
+          }
         </div>
       </div>
 
+      <!-- the picture is not part of the FormGroup: a file input keeps the
+           File itself, and it is added to the FormData when saving -->
       <label for="photo">Picture</label>
       <input
         id="photo"
-        name="photo"
         type="file"
         accept="image/*"
         (change)="onPhotoPicked($event)"
       />
 
       <label class="check">
-        <input type="checkbox" name="available" [(ngModel)]="form.available" />
+        <input type="checkbox" formControlName="available" />
         Available on the menu
       </label>
 
@@ -112,7 +141,9 @@
       }
 
       <div class="form-actions">
-        <button type="submit" class="btn-inline">Save</button>
+        <button type="submit" class="btn-inline" [disabled]="dishForm.invalid">
+          Save
+        </button>
         <button
           type="button"
           class="btn-inline btn-quiet"
@@ -155,7 +186,9 @@
                   </div>
                 </div>
               </td>
-              <td><span class="badge">{{ item.category }}</span></td>
+              <td>
+                <span class="badge">{{ item.category }}</span>
+              </td>
               <td>{{ item.price }} EGP</td>
               <td>
                 @if (item.numReviews) {
@@ -165,10 +198,12 @@
                 }
               </td>
               <td>
+                <!-- attribute binding: screen readers get the dish name -->
                 <button
                   type="button"
                   class="btn-inline"
                   [class.btn-quiet]="!item.available"
+                  [attr.aria-label]="'Toggle ' + item.name"
                   (click)="toggleAvailable(item)"
                 >
                   {{ item.available ? 'Yes' : 'No' }}
