@@ -65,10 +65,21 @@
                   </span>
                 </td>
               </tr>
+            } @empty {
+              <tr>
+                <td colspan="6" class="state">No orders yet today.</td>
+              </tr>
             }
           </tbody>
         </table>
       </div>
     </section>
   }
+
+  <!-- the canvas is outside the @if above, so it is already in the page when
+       ngAfterViewInit runs and the drawing can start -->
+  <section class="chart-panel panel">
+    <h2>Recent orders by status</h2>
+    <canvas #chart width="640" height="180"></canvas>
+  </section>
 </div>

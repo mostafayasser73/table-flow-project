@@ -23,10 +23,6 @@
     <section class="block">
       <h2>Tables</h2>
 
-      @if (tables().length === 0) {
-        <p class="state">No tables are assigned to you yet.</p>
-      }
-
       <div class="tables">
         @for (table of tables(); track table._id) {
           <article class="table-card panel status-{{ table.status }}">
@@ -40,6 +36,13 @@
             <small class="muted">
               {{ table.currentGuests }} of {{ table.capacity }} seats
             </small>
+
+            <!-- style binding: how full the table is, as a bar -->
+            <div class="seats-bar">
+              <span
+                [style.width.%]="(table.currentGuests / table.capacity) * 100"
+              ></span>
+            </div>
 
             <div class="table-actions">
               @if (table.status !== TableStatus.Occupied) {
@@ -63,6 +66,8 @@
               }
             </div>
           </article>
+        } @empty {
+          <p class="state">No tables are assigned to you yet.</p>
         }
       </div>
     </section>
@@ -93,8 +98,16 @@
                   <td>{{ order.tableNumber }}</td>
                   <td>{{ customerName(order) }}</td>
                   <td class="items">
-                    @for (line of order.items; track line.menuItem) {
-                      <span>{{ line.quantity }} x {{ line.name }}</span>
+                    <!-- $last puts the comma between the dishes only -->
+                    @for (
+                      line of order.items;
+                      track line.menuItem;
+                      let last = $last
+                    ) {
+                      <span
+                        >{{ line.quantity }} x {{ line.name
+                        }}{{ last ? '' : ',' }}</span
+                      >
                     }
                   </td>
                   <td>{{ order.createdAt | date: 'h:mm a' }}</td>

@@ -67,8 +67,15 @@
                   <tr>
                     <td>#{{ order.orderNumber }}</td>
                     <td class="items">
-                      @for (line of order.items; track line.menuItem) {
-                        <span>{{ line.quantity }} x {{ line.name }}</span>
+                      @for (
+                        line of order.items;
+                        track line.menuItem;
+                        let last = $last
+                      ) {
+                        <span
+                          >{{ line.quantity }} x {{ line.name
+                          }}{{ last ? '' : ',' }}</span
+                        >
                       }
                     </td>
                     <td>{{ order.orderType }}</td>

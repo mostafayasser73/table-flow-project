@@ -39,3 +39,19 @@
   font-weight: 600;
   font-size: 0.9rem;
 }
+
+.chart-panel {
+  margin-bottom: 1.5rem;
+}
+
+.chart-panel h2 {
+  font-size: 1.05rem;
+  margin-bottom: 0.9rem;
+}
+
+.chart-panel canvas {
+  display: block;
+  width: 100%;
+  max-width: 40rem;
+  height: auto;
+}

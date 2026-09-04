@@ -43,3 +43,8 @@
   color: var(--muted);
   font-size: 0.78rem;
 }
+
+/* $even from the @for block colours every second row */
+tbody tr.striped {
+  background: var(--bg);
+}
