@@ -1,5 +1,4 @@
 import { DatePipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -62,11 +61,9 @@ export class Reservations implements OnInit {
           this.isLoading.set(false);
           this.reservations.set(response.data.reservations);
         },
-        error: (error: HttpErrorResponse) => {
+        error: (error: Error) => {
           this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.message ?? 'Could not load the reservations',
-          );
+          this.errorMessage.set(error.message);
         },
       });
   }
@@ -78,10 +75,7 @@ export class Reservations implements OnInit {
       .updateStatus(reservation._id, ReservationStatus.Confirmed, tableNumber)
       .subscribe({
         next: () => this.load(),
-        error: (error: HttpErrorResponse) =>
-          this.errorMessage.set(
-            error.error?.message ?? 'Could not confirm the reservation',
-          ),
+        error: (error: Error) => this.errorMessage.set(error.message),
       });
   }
 
@@ -90,8 +84,7 @@ export class Reservations implements OnInit {
       .updateStatus(reservation._id, ReservationStatus.Cancelled)
       .subscribe({
         next: () => this.load(),
-        error: (error: HttpErrorResponse) =>
-          this.errorMessage.set(error.error?.message ?? 'Could not cancel'),
+        error: (error: Error) => this.errorMessage.set(error.message),
       });
   }
 
@@ -102,8 +95,7 @@ export class Reservations implements OnInit {
 
     this.reservationService.deleteReservation(reservation._id).subscribe({
       next: () => this.load(),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(error.error?.message ?? 'Could not delete'),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 

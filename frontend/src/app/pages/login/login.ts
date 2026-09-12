@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -36,19 +35,20 @@ export class Login {
         this.isLoading.set(false);
 
         // the guard puts ?returnUrl=... on the address when it sends
-        // somebody here, so they land back where they were going
+        // somebody here, so they land back where they were going. Otherwise
+        // each role starts on its own screen: the chef on the kitchen board,
+        // the waiter on their tables, and so on.
         const returnUrl =
-          this.route.snapshot.queryParamMap.get('returnUrl') ?? '/menu';
+          this.route.snapshot.queryParamMap.get('returnUrl') ??
+          this.authService.landingPage();
 
         this.router.navigateByUrl(returnUrl);
       },
-      error: (error: HttpErrorResponse) => {
+      error: (error: Error) => {
         this.isLoading.set(false);
 
-        // the backend always answers with { status, message }
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not reach the server',
-        );
+        // the error interceptor already turned the response into a message
+        this.errorMessage.set(error.message);
       },
     });
   }

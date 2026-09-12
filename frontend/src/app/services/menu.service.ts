@@ -1,14 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map, retry } from 'rxjs';
 
 import { API_BASE_URL } from '../api-config';
-import {
-  ApiResponse,
-  MenuItemsPage,
-} from '../models/api-response.model';
+import { ApiResponse, MenuItemsPage } from '../models/api-response.model';
 import {
   CategoriesData,
+  MenuItem,
   MenuItemsData,
   MenuItemData,
 } from '../models/menu-item.model';
@@ -55,13 +53,26 @@ export class MenuService {
   }
 
   // GET /api/v1/menu-items/popular  (Popular Items on the Home page)
-  getPopular(): Observable<ApiResponse<MenuItemsData>> {
-    return this.http.get<ApiResponse<MenuItemsData>>(`${this.url}/popular`);
+  // The home page only needs the list, so map() unwraps it from the response.
+  // retry(2) tries again twice before giving up: the home page is the first
+  // thing a visitor sees, and one dropped request should not leave it empty.
+  getPopular(): Observable<MenuItem[]> {
+    return this.http
+      .get<ApiResponse<MenuItemsData>>(`${this.url}/popular`)
+      .pipe(
+        retry(2),
+        map((response) => response.data.menuItems),
+      );
   }
 
   // GET /api/v1/menu-items/categories  (the category pills)
-  getCategories(): Observable<ApiResponse<CategoriesData>> {
-    return this.http.get<ApiResponse<CategoriesData>>(`${this.url}/categories`);
+  getCategories(): Observable<string[]> {
+    return this.http
+      .get<ApiResponse<CategoriesData>>(`${this.url}/categories`)
+      .pipe(
+        retry(2),
+        map((response) => response.data.categories),
+      );
   }
 
   // GET /api/v1/menu-items/:id  (Item Details page)
@@ -80,7 +91,10 @@ export class MenuService {
     id: string,
     data: FormData,
   ): Observable<ApiResponse<MenuItemData>> {
-    return this.http.patch<ApiResponse<MenuItemData>>(`${this.url}/${id}`, data);
+    return this.http.patch<ApiResponse<MenuItemData>>(
+      `${this.url}/${id}`,
+      data,
+    );
   }
 
   // DELETE /api/v1/menu-items/:id  (admin, manager)

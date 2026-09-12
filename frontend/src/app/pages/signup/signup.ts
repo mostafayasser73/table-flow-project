@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import {
   FormField,
@@ -25,6 +24,15 @@ import { SignupData } from '../../models/user.model';
 export class Signup {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+
+  // A file is not text, so it cannot live in the form model. It is kept here
+  // and added to the FormData when the form is sent.
+  private pickedPhoto?: File;
+
+  protected onPhotoPicked(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.pickedPhoto = input.files?.[0];
+  }
 
   // The model is a plain signal, and it is the single source of truth for
   // the form: what the user types ends up here.
@@ -90,15 +98,26 @@ export class Signup {
         // shown as an error on the form, and Angular clears it again as soon
         // as the user edits the field it belongs to.
         action: async (field) => {
+          // Multer on the backend reads multipart/form-data, not JSON, so
+          // every field is appended one by one, and the picture with them
+          const data = new FormData();
+
+          for (const [key, value] of Object.entries(field().value())) {
+            data.append(key, value);
+          }
+
+          if (this.pickedPhoto) {
+            data.append('imageUrl', this.pickedPhoto);
+          }
+
           try {
-            await firstValueFrom(this.authService.signup(field().value()));
-            this.router.navigate(['/menu']);
+            await firstValueFrom(this.authService.signup(data));
+            this.router.navigate([this.authService.landingPage()]);
 
             return undefined;
           } catch (error) {
-            const response = error as HttpErrorResponse;
-            const message =
-              response.error?.message ?? 'Could not reach the server';
+            // the error interceptor already turned the response into a message
+            const message = (error as Error).message;
 
             // the backend answers with this when the email is taken, and the
             // message belongs on the email field, not on the whole form

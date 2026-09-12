@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -78,7 +77,7 @@ export class Menu implements OnInit {
 
   private loadCategories(): void {
     this.menuService.getCategories().subscribe({
-      next: (response) => this.categories.set(response.data.categories),
+      next: (categories) => this.categories.set(categories),
       // the pills are not critical, so a failure here only hides them
       error: () => this.categories.set([]),
     });
@@ -103,13 +102,10 @@ export class Menu implements OnInit {
           this.totalPages.set(response.totalPages);
           this.totalItems.set(response.totalItems);
         },
-        error: (error: HttpErrorResponse) => {
+        error: (error: Error) => {
           this.isLoading.set(false);
           this.menuItems.set([]);
-          this.errorMessage.set(
-            error.error?.message ??
-              'Could not reach the server. Is the backend running?',
-          );
+          this.errorMessage.set(error.message);
         },
       });
   }

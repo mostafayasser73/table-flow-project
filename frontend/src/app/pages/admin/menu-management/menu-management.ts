@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { TitleCasePipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import {
@@ -93,11 +92,9 @@ export class MenuManagement implements OnInit {
           this.totalPages.set(response.totalPages);
           this.totalItems.set(response.totalItems);
         },
-        error: (error: HttpErrorResponse) => {
+        error: (error: Error) => {
           this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.message ?? 'Could not load the menu',
-          );
+          this.errorMessage.set(error.message);
         },
       });
   }
@@ -197,8 +194,7 @@ export class MenuManagement implements OnInit {
         this.isFormOpen.set(false);
         this.load();
       },
-      error: (error: HttpErrorResponse) =>
-        this.formError.set(error.error?.message ?? 'Could not save the dish'),
+      error: (error: Error) => this.formError.set(error.message),
     });
   }
 
@@ -214,8 +210,7 @@ export class MenuManagement implements OnInit {
             i._id === item._id ? { ...i, available: !i.available } : i,
           ),
         ),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(error.error?.message ?? 'Could not update'),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 
@@ -226,10 +221,7 @@ export class MenuManagement implements OnInit {
 
     this.menuService.deleteMenuItem(item._id).subscribe({
       next: () => this.load(),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not delete the dish',
-        ),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 }

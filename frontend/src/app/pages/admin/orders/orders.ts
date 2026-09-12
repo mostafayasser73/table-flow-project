@@ -1,5 +1,4 @@
 import { DatePipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -63,11 +62,9 @@ export class Orders implements OnInit {
           this.totalPages.set(response.totalPages);
           this.totalOrders.set(response.totalOrders);
         },
-        error: (error: HttpErrorResponse) => {
+        error: (error: Error) => {
           this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.message ?? 'Could not load the orders',
-          );
+          this.errorMessage.set(error.message);
         },
       });
   }
@@ -113,10 +110,7 @@ export class Orders implements OnInit {
         this.load();
         this.loadStats();
       },
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not update the order',
-        ),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 
@@ -127,8 +121,7 @@ export class Orders implements OnInit {
 
     this.orderService.deleteOrder(order._id).subscribe({
       next: () => this.load(),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(error.error?.message ?? 'Could not delete'),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 

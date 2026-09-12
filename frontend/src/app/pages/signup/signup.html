@@ -109,6 +109,15 @@
         </div>
       }
 
+      <!-- optional: without it the backend uses default-user.webp -->
+      <label for="photo">Profile picture (optional)</label>
+      <input
+        id="photo"
+        type="file"
+        accept="image/*"
+        (change)="onPhotoPicked($event)"
+      />
+
       <!-- errors the server sent back for the whole form -->
       @for (error of signupForm().errors(); track error) {
         <p class="error">{{ error.message }}</p>

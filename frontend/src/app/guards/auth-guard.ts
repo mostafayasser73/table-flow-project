@@ -27,9 +27,10 @@ export const roleGuard = (...roles: UserRole[]): CanActivateFn => {
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    const user = authService.currentUser();
+    // the role is read from the token, the same place the backend reads it
+    const role = authService.getRole();
 
-    if (user && roles.includes(user.role)) {
+    if (role && roles.includes(role)) {
       return true;
     }
 

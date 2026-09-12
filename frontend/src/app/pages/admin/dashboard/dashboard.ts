@@ -1,5 +1,4 @@
 import { DatePipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   AfterViewInit,
   Component,
@@ -67,10 +66,7 @@ export class Dashboard implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.dashboardService.getStats().subscribe({
       next: (response) => this.stats.set(response.data),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not load the dashboard',
-        ),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 

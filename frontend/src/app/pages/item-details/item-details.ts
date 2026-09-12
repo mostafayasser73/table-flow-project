@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -49,9 +48,9 @@ export class ItemDetails implements OnInit {
         this.isLoading.set(false);
         this.item.set(response.data.menuItem);
       },
-      error: (error: HttpErrorResponse) => {
+      error: (error: Error) => {
         this.isLoading.set(false);
-        this.errorMessage.set(error.error?.message ?? 'Dish not found');
+        this.errorMessage.set(error.message);
       },
     });
 
@@ -102,8 +101,8 @@ export class ItemDetails implements OnInit {
           next: (response) => this.item.set(response.data.menuItem),
         });
       },
-      error: (error: HttpErrorResponse) => {
-        this.reviewError.set(error.error?.message ?? 'Could not add the review');
+      error: (error: Error) => {
+        this.reviewError.set(error.message);
       },
     });
   }

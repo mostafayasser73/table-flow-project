@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -61,11 +60,9 @@ export class ReservationPage {
           queryParams: { tab: 'reservations' },
         });
       },
-      error: (error: HttpErrorResponse) => {
+      error: (error: Error) => {
         this.isSaving.set(false);
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not save the reservation',
-        );
+        this.errorMessage.set(error.message);
       },
     });
   }

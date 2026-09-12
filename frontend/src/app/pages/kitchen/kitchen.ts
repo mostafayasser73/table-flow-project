@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import {
   Component,
   DestroyRef,
@@ -7,6 +6,8 @@ import {
   inject,
   signal,
 } from '@angular/core';
+
+import { filter, interval } from 'rxjs';
 
 import { OrderTicket } from '../../components/order-ticket/order-ticket';
 import { Order, OrderStatus } from '../../models/order.model';
@@ -42,12 +43,17 @@ export class Kitchen implements OnInit {
 
   constructor() {
     // Nobody stands next to the screen pressing Refresh, so the board polls
-    // by itself. DestroyRef keeps the timer next to the code that started it,
-    // and stops it when the screen is left — otherwise the interval would go
-    // on requesting orders for a page that is gone.
-    const timerId = window.setInterval(() => this.load(), REFRESH_EVERY);
+    // by itself. interval() emits 0, 1, 2... every REFRESH_EVERY ms, and
+    // filter() lets a tick through only while the tab is on screen, so a
+    // board left open in a background tab stops asking the server for orders.
+    const refresh = interval(REFRESH_EVERY)
+      .pipe(filter(() => document.visibilityState === 'visible'))
+      .subscribe(() => this.load());
 
-    this.destroyRef.onDestroy(() => clearInterval(timerId));
+    // DestroyRef keeps the cleanup next to the code that started it, and
+    // stops the stream when the screen is left — otherwise it would go on
+    // requesting orders for a page that is gone.
+    this.destroyRef.onDestroy(() => refresh.unsubscribe());
   }
 
   ngOnInit(): void {
@@ -60,11 +66,9 @@ export class Kitchen implements OnInit {
         this.isLoading.set(false);
         this.orders.set(response.data.orders);
       },
-      error: (error: HttpErrorResponse) => {
+      error: (error: Error) => {
         this.isLoading.set(false);
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not load the kitchen orders',
-        );
+        this.errorMessage.set(error.message);
       },
     });
   }
@@ -72,8 +76,7 @@ export class Kitchen implements OnInit {
   protected setStatus(order: Order, status: OrderStatus): void {
     this.orderService.updateStatus(order._id, status).subscribe({
       next: () => this.load(),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(error.error?.message ?? 'Could not update'),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 }

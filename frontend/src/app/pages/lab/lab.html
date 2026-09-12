@@ -342,4 +342,76 @@
 
     <p class="muted">Model: {{ orderModel() | json }}</p>
   </section>
+
+  <!-- ============ 11. root service vs a service per component ============ -->
+  <section class="panel">
+    <h2>Service scopes: root vs component providers</h2>
+
+    <p class="muted">
+      Each counter lists TallyService in its own providers, so each one got its
+      own instance and its own count.
+    </p>
+
+    <div class="slots">
+      <app-tally-counter label="Counter A" />
+      <app-tally-counter label="Counter B" />
+    </div>
+
+    <p class="muted">
+      CartService is providedIn: 'root' — this page and the header read the same
+      instance:
+      {{ cartService.count() }} item(s) in the cart.
+    </p>
+  </section>
+
+  <!-- ============ 12. an Observable made by hand ============ -->
+  <section class="panel">
+    <h2>Observable with next, error and complete</h2>
+
+    <p class="muted">
+      The producer emits tickets 1 to 6. filter() keeps the even ones, map()
+      turns them into labels.
+    </p>
+
+    <div class="lab-actions">
+      <button
+        type="button"
+        class="btn-inline"
+        [disabled]="isStreaming()"
+        (click)="runStream(false)"
+      >
+        Run the stream
+      </button>
+
+      <button
+        type="button"
+        class="btn-inline btn-danger"
+        [disabled]="isStreaming()"
+        (click)="runStream(true)"
+      >
+        Run it with an error
+      </button>
+    </div>
+
+    <ol class="log">
+      @for (line of streamLog(); track $index) {
+        <li>{{ line }}</li>
+      }
+    </ol>
+  </section>
+
+  <!-- ============ 13. HttpHeaders and retry ============ -->
+  <section class="panel">
+    <h2>A request with HttpHeaders and retry()</h2>
+
+    <div class="lab-actions">
+      <button type="button" class="btn-inline" (click)="loadWithHeaders()">
+        Load the categories
+      </button>
+    </div>
+
+    @if (headerResult()) {
+      <p class="notice">{{ headerResult() }}</p>
+    }
+  </section>
 </div>

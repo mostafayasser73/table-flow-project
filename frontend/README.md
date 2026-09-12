@@ -78,9 +78,14 @@ Three pieces make that happen:
 
 | Piece | File | What it does |
 | ----- | ---- | ------------ |
-| Service | `services/auth.service.ts` | keeps the token and the user in **local storage**, so refreshing does not log the user out |
-| Interceptor | `interceptors/auth-interceptor.ts` | adds the `Authorization` header to every request, so no service has to remember to |
+| Service | `services/auth.service.ts` | keeps the token and the user in **local storage**, so refreshing does not log the user out; decodes the token with **jwt-decode** to check `exp` (`isLoggedIn()`) and read the role (`getRole()`) |
+| Auth interceptor | `interceptors/auth-interceptor.ts` | adds the `Authorization` header to every request, so no service has to remember to |
+| Error interceptor | `interceptors/error-interceptor.ts` | turns every failed response into one `Error` with a readable message, and ends the session on a `401` for a request that carried a token |
 | Guards | `guards/auth-guard.ts` | `authGuard` blocks a page when nobody is logged in, `roleGuard(...)` blocks it for the wrong role |
+
+After logging in, each role lands on its own screen: admin and manager on
+`/admin`, the chef on `/kitchen`, the waiter on `/waiter`, a customer on `/menu`
+(unless a guard sent them to login with a `returnUrl`).
 
 The guards only keep the screens tidy. **The real protection is on the server**,
 because anything in the browser can be edited — the same roles are checked again
@@ -171,7 +176,9 @@ frontend/
 │   │   │
 │   │   ├── directives/autofocus.ts
 │   │   ├── guards/auth-guard.ts
-│   │   ├── interceptors/auth-interceptor.ts
+│   │   ├── interceptors/
+│   │   │   ├── auth-interceptor.ts
+│   │   │   └── error-interceptor.ts
 │   │   │
 │   │   ├── pages/
 │   │   │   ├── home/
@@ -185,6 +192,7 @@ frontend/
 │   │   │   ├── kitchen/
 │   │   │   ├── waiter/
 │   │   │   └── admin/
+│   │   │       ├── admin-layout/  parent of the /admin child routes
 │   │   │       ├── dashboard/
 │   │   │       ├── menu-management/
 │   │   │       ├── orders/
@@ -252,3 +260,15 @@ frontend/
 | `asReadonly()` | `services/cart.service.ts` |
 | Attribute binding `[attr.]` | `pages/admin/menu-management`, `pages/lab/legacy-child` |
 | `titlecase` pipe | `pages/admin/menu-management` |
+| Child routes (`children` + a nested `<router-outlet>`) | `app.routes.ts` under `admin`, `pages/admin/admin-layout` |
+| Route `title` | every route in `app.routes.ts` |
+| Guards returning a `UrlTree`, `returnUrl` | `guards/auth-guard.ts`, `pages/login` |
+| Error interceptor (`catchError` / `throwError`) | `interceptors/error-interceptor.ts` |
+| JWT decode, expiry check, `getRole()` | `services/auth.service.ts` |
+| RxJS `map` / `retry` in a service | `services/menu.service.ts` (`getPopular`, `getCategories`) |
+| RxJS `interval` / `filter` | `pages/kitchen` (refresh only while the tab is visible) |
+| File upload with `FormData` | `pages/signup`, `pages/profile`, admin users and menu |
+| Clearing a file input by hand (`viewChild` + `nativeElement`) | `pages/profile` |
+| Component-level `providers` vs `providedIn: 'root'` | `pages/lab/tally-counter` |
+| `new Observable` with `next` / `error` / `complete` | `pages/lab` |
+| `HttpHeaders` | `pages/lab` |

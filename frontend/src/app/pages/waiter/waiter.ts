@@ -1,5 +1,4 @@
 import { DatePipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { Order, OrderStatus } from '../../models/order.model';
@@ -39,11 +38,9 @@ export class Waiter implements OnInit {
         this.orders.set(response.data.orders);
         this.readyToServe.set(response.readyToServe);
       },
-      error: (error: HttpErrorResponse) => {
+      error: (error: Error) => {
         this.isLoading.set(false);
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not load your tables',
-        );
+        this.errorMessage.set(error.message);
       },
     });
   }
@@ -56,8 +53,7 @@ export class Waiter implements OnInit {
   protected markServed(order: Order): void {
     this.orderService.updateStatus(order._id, OrderStatus.Served).subscribe({
       next: () => this.load(),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(error.error?.message ?? 'Could not update'),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 
@@ -71,10 +67,7 @@ export class Waiter implements OnInit {
 
     this.tableService.updateTable(table._id, changes).subscribe({
       next: () => this.load(),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not update the table',
-        ),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 }

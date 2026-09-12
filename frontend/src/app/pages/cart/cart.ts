@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -87,11 +86,9 @@ export class Cart {
           queryParams: { tab: 'orders' },
         });
       },
-      error: (error: HttpErrorResponse) => {
+      error: (error: Error) => {
         this.isPlacing.set(false);
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not place the order',
-        );
+        this.errorMessage.set(error.message);
       },
     });
   }

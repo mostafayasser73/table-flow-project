@@ -20,12 +20,12 @@ export class Home implements OnInit {
 
   ngOnInit(): void {
     this.menuService.getPopular().subscribe({
-      next: (response) => this.popular.set(response.data.menuItems),
+      next: (items) => this.popular.set(items),
       error: () => this.popular.set([]),
     });
 
     this.menuService.getCategories().subscribe({
-      next: (response) => this.categories.set(response.data.categories),
+      next: (categories) => this.categories.set(categories),
       error: () => this.categories.set([]),
     });
   }

@@ -1,4 +1,3 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
@@ -85,11 +84,9 @@ export class Users implements OnInit {
           this.totalPages.set(response.totalPages);
           this.totalUsers.set(response.totalUsers);
         },
-        error: (error: HttpErrorResponse) => {
+        error: (error: Error) => {
           this.isLoading.set(false);
-          this.errorMessage.set(
-            error.error?.message ?? 'Could not load the users',
-          );
+          this.errorMessage.set(error.message);
         },
       });
   }
@@ -176,8 +173,8 @@ export class Users implements OnInit {
         this.isFormOpen.set(false);
         this.load();
       },
-      error: (error: HttpErrorResponse) => {
-        this.formError.set(error.error?.message ?? 'Could not save the user');
+      error: (error: Error) => {
+        this.formError.set(error.message);
       },
     });
   }
@@ -189,10 +186,7 @@ export class Users implements OnInit {
 
     this.userService.deleteUser(user._id).subscribe({
       next: () => this.load(),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(
-          error.error?.message ?? 'Could not delete the user',
-        ),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 

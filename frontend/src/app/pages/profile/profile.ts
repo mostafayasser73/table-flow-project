@@ -1,15 +1,18 @@
 import { DatePipe } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { uploadedImage } from '../../api-config';
 import { Order } from '../../models/order.model';
-import {
-  Reservation,
-  ReservationStatus,
-} from '../../models/reservation.model';
+import { Reservation, ReservationStatus } from '../../models/reservation.model';
 import { AuthService } from '../../services/auth.service';
 import { OrderService } from '../../services/order.service';
 import { ReservationService } from '../../services/reservation.service';
@@ -40,6 +43,11 @@ export class Profile implements OnInit {
     phone: '',
   };
   private pickedPhoto?: File;
+
+  // The form stays open after saving, and a file input keeps showing the old
+  // file name: resetting the model does not clear it, so it is cleared by hand
+  private readonly photoInput =
+    viewChild<ElementRef<HTMLInputElement>>('photoInput');
   protected readonly detailsMessage = signal('');
   protected readonly detailsError = signal('');
 
@@ -107,10 +115,16 @@ export class Profile implements OnInit {
     this.authService.updateMe(data).subscribe({
       next: () => {
         this.pickedPhoto = undefined;
+
+        const input = this.photoInput();
+        if (input) {
+          input.nativeElement.value = '';
+        }
+
         this.detailsMessage.set('Profile updated');
       },
-      error: (error: HttpErrorResponse) => {
-        this.detailsError.set(error.error?.message ?? 'Could not save');
+      error: (error: Error) => {
+        this.detailsError.set(error.message);
       },
     });
   }
@@ -126,10 +140,8 @@ export class Profile implements OnInit {
         this.passwords.confirmPassword = '';
         this.passwordMessage.set('Password changed');
       },
-      error: (error: HttpErrorResponse) => {
-        this.passwordError.set(
-          error.error?.message ?? 'Could not change the password',
-        );
+      error: (error: Error) => {
+        this.passwordError.set(error.message);
       },
     });
   }

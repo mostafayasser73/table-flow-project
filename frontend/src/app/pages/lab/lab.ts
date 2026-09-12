@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {
   CUSTOM_ELEMENTS_SCHEMA,
   Component,
@@ -27,12 +27,17 @@ import {
   required,
   submit,
 } from '@angular/forms/signals';
+import { Observable, filter, map, retry } from 'rxjs';
 
-import { MenuItem } from '../../models/menu-item.model';
+import { API_BASE_URL } from '../../api-config';
+import { ApiResponse } from '../../models/api-response.model';
+import { CategoriesData, MenuItem } from '../../models/menu-item.model';
+import { CartService } from '../../services/cart.service';
 import { MenuService } from '../../services/menu.service';
 import { LegacyChild } from './legacy-child/legacy-child';
 import { LifecycleLogger } from './lifecycle-logger/lifecycle-logger';
 import { SlotsCard } from './slots-card/slots-card';
+import { TallyCounter } from './tally-counter/tally-counter';
 
 // A page that shows the Angular building blocks the rest of the app uses, and
 // also the older ways of writing them, side by side, on the real menu data.
@@ -47,6 +52,7 @@ import { SlotsCard } from './slots-card/slots-card';
     LegacyChild,
     LifecycleLogger,
     SlotsCard,
+    TallyCounter,
   ],
   templateUrl: './lab.html',
   styleUrl: './lab.css',
@@ -56,6 +62,10 @@ import { SlotsCard } from './slots-card/slots-card';
 })
 export class Lab implements OnInit {
   private readonly menuService = inject(MenuService);
+  private readonly http = inject(HttpClient);
+
+  // a root service: the same instance the header reads the cart count from
+  protected readonly cartService = inject(CartService);
 
   protected readonly dishes = signal<MenuItem[]>([]);
   protected readonly errorMessage = signal('');
@@ -166,6 +176,93 @@ export class Lab implements OnInit {
     }));
   }
 
+  // --- an Observable made by hand, with filter() and map() ----------------
+
+  protected readonly streamLog = signal<string[]>([]);
+  protected readonly isStreaming = signal(false);
+
+  // The producer: it decides when to call next(), error() and complete().
+  // Nothing runs until somebody subscribes.
+  private ticketNumbers(shouldFail: boolean): Observable<number> {
+    return new Observable<number>((observer) => {
+      let ticket = 0;
+
+      const timerId = setInterval(() => {
+        ticket++;
+        observer.next(ticket);
+
+        if (ticket === 3 && shouldFail) {
+          // error() ends the stream: complete() will never be called after it
+          observer.error(new Error('The ticket printer ran out of paper'));
+        }
+
+        if (ticket === 6) {
+          observer.complete();
+        }
+      }, 400);
+
+      // returned function = what to do when the stream ends or is unsubscribed
+      return () => clearInterval(timerId);
+    });
+  }
+
+  protected runStream(shouldFail: boolean): void {
+    this.streamLog.set([]);
+    this.isStreaming.set(true);
+
+    const log = (line: string) =>
+      this.streamLog.update((lines) => [...lines, line]);
+
+    this.ticketNumbers(shouldFail)
+      .pipe(
+        // only the even tickets go on...
+        filter((ticket) => ticket % 2 === 0),
+        // ...and each one is turned into a label
+        map((ticket) => `Ticket #${1000 + ticket}`),
+      )
+      .subscribe({
+        next: (label) => log(`next: ${label}`),
+        error: (error: Error) => {
+          log(`error: ${error.message}`);
+          this.isStreaming.set(false);
+        },
+        complete: () => {
+          log('complete');
+          this.isStreaming.set(false);
+        },
+      });
+  }
+
+  // --- a request with HttpHeaders and retry() -----------------------------
+
+  protected readonly headerResult = signal('');
+
+  protected loadWithHeaders(): void {
+    this.headerResult.set('Loading...');
+
+    // Most headers are added for the whole app by the interceptors. This is
+    // how one request sets its own: Accept tells the server what to send back.
+    const headers = new HttpHeaders({ Accept: 'application/json' });
+
+    this.http
+      .get<ApiResponse<CategoriesData>>(
+        `${API_BASE_URL}/menu-items/categories`,
+        {
+          headers,
+        },
+      )
+      .pipe(
+        // on a failure the request is sent again, up to 2 more times
+        retry(2),
+        map((response) => response.data.categories),
+      )
+      .subscribe({
+        next: (categories) =>
+          this.headerResult.set(`Categories: ${categories.join(', ')}`),
+        error: (error: Error) => this.headerResult.set(error.message),
+      });
+  }
+
   private newItemControl(): FormControl<string | null> {
     return new FormControl('', [Validators.required]);
   }
@@ -173,8 +270,7 @@ export class Lab implements OnInit {
   ngOnInit(): void {
     this.menuService.getMenuItems({ limit: 5 }).subscribe({
       next: (response) => this.dishes.set(response.data.menuItems),
-      error: (error: HttpErrorResponse) =>
-        this.errorMessage.set(error.error?.message ?? 'Could not load dishes'),
+      error: (error: Error) => this.errorMessage.set(error.message),
     });
   }
 
