@@ -4,12 +4,13 @@ The whole project lives in this repository:
 
 | Part | Folder | Built with |
 | ---- | ------ | ---------- |
-| Backend REST API | the root | Node.js, Express, MongoDB, Mongoose |
+| Backend REST API | [`backend/`](backend) | Node.js, Express, MongoDB, Mongoose |
 | Frontend | [`frontend/`](frontend) | Angular, TypeScript |
 
 The frontend talks to the backend over HTTP and never touches MongoDB itself.
 Each part has its own `package.json`, so they are installed and started
-separately — see [`frontend/README.md`](frontend/README.md) for the Angular side.
+separately, each from its own folder — see [`frontend/README.md`](frontend/README.md)
+for the Angular side.
 
 API base URL: `http://localhost:5001/api/v1`
 
@@ -19,13 +20,16 @@ API base URL: `http://localhost:5001/api/v1`
 
 ### The backend
 
+From the `backend` folder:
+
 1. Install the packages:
 
 ```bash
+cd backend
 npm install
 ```
 
-2. Create a `.env` file in the project root:
+2. Create a `.env` file inside the `backend` folder:
 
 ```env
 PORT=5001
@@ -52,7 +56,7 @@ the API answers with real data straight away. Staff accounts are created by an
 admin from the Users Management page; `POST /auth/signup` always creates a
 customer.
 
-The dish and profile pictures live under `uploads/`, and are served at
+The dish and profile pictures live under `backend/uploads/`, and are served at
 `/api/v1/uploads/...`.
 
 ### The frontend
@@ -253,48 +257,53 @@ authentication (401) and authorization (403).
 ```text
 backend project/
 │
-├── config/
-│   └── db-connect.js
-│
-├── controllers/
-│   ├── auth-controllers.js
-│   ├── user-controllers.js
-│   ├── menu-item-controllers.js
-│   ├── review-controllers.js
-│   ├── order-controllers.js
-│   ├── reservation-controllers.js
-│   ├── table-controllers.js
-│   └── dashboard-controllers.js
-│
-├── models/
-│   ├── user-model.js
-│   ├── menu-item-model.js
-│   ├── review-model.js
-│   ├── order-model.js
-│   ├── reservation-model.js
-│   └── table-model.js
-│
-├── routes/
-│   ├── auth-routes.js
-│   ├── user-routes.js
-│   ├── menu-item-routes.js
-│   ├── review-routes.js
-│   ├── order-routes.js
-│   ├── reservation-routes.js
-│   ├── table-routes.js
-│   └── dashboard-routes.js
-│
-├── middlewares/
-│   ├── auth-middleware.js
-│   └── multer-middleware.js
-│
-├── utils/
-│   ├── get-jwt.js
-│   └── delete-uploaded-file.js
-│
-├── uploads/          (Multer writes new uploads here)
-│   ├── users/
-│   └── menu-items/
+├── backend/          (the Express API)
+│   ├── config/
+│   │   └── db-connect.js
+│   │
+│   ├── controllers/
+│   │   ├── auth-controllers.js
+│   │   ├── user-controllers.js
+│   │   ├── menu-item-controllers.js
+│   │   ├── review-controllers.js
+│   │   ├── order-controllers.js
+│   │   ├── reservation-controllers.js
+│   │   ├── table-controllers.js
+│   │   └── dashboard-controllers.js
+│   │
+│   ├── models/
+│   │   ├── user-model.js
+│   │   ├── menu-item-model.js
+│   │   ├── review-model.js
+│   │   ├── order-model.js
+│   │   ├── reservation-model.js
+│   │   └── table-model.js
+│   │
+│   ├── routes/
+│   │   ├── auth-routes.js
+│   │   ├── user-routes.js
+│   │   ├── menu-item-routes.js
+│   │   ├── review-routes.js
+│   │   ├── order-routes.js
+│   │   ├── reservation-routes.js
+│   │   ├── table-routes.js
+│   │   └── dashboard-routes.js
+│   │
+│   ├── middlewares/
+│   │   ├── auth-middleware.js
+│   │   └── multer-middleware.js
+│   │
+│   ├── utils/
+│   │   ├── get-jwt.js
+│   │   └── delete-uploaded-file.js
+│   │
+│   ├── uploads/      (Multer writes new uploads here)
+│   │   ├── users/
+│   │   └── menu-items/
+│   │
+│   ├── .env
+│   ├── index.js
+│   └── package.json
 │
 ├── frontend/         (the Angular app — see frontend/README.md)
 │   ├── src/
@@ -302,14 +311,13 @@ backend project/
 │   ├── angular.json
 │   └── package.json
 │
-├── .env
 ├── .gitignore
-├── index.js
-└── package.json
+└── README.md
 ```
 
-`frontend/` keeps its own `package.json` and `.gitignore`, so its
-`node_modules` and `dist` are never committed.
+`backend/` and `frontend/` each keep their own `package.json`. The root
+`.gitignore` keeps every `node_modules` and `.env` out of git, and
+`frontend/` has its own `.gitignore` for `dist`.
 
 ---
 

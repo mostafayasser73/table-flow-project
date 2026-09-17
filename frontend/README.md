@@ -12,10 +12,10 @@ Backend base URL: `http://localhost:5001/api/v1` (set in `src/app/api-config.ts`
 
 The backend has to be running first, because every screen reads its data from it.
 
-1. Start the backend, from the folder **above** this one:
+1. Start the backend, from the `backend` folder next to this one:
 
 ```bash
-cd .. && npm start
+cd ../backend && npm start
 ```
 
 2. In a second terminal, install the frontend packages (only the first time):
